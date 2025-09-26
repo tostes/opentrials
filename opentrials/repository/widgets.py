@@ -16,13 +16,13 @@ class SelectWithLink(forms.widgets.Select):
         if value is None: 
             value = ''
         final_attrs = self.build_attrs(attrs, name=name)
-        output = [u'<select%s>' % flatatt(final_attrs)]
+        output = ['<select%s>' % flatatt(final_attrs)]
         options = self.render_options(choices, [value])
         if options:
             output.append(options)
-        output.append(u'</select>')
-        output.append(u'<span><a href="%s" id="%s-link" style="display: inline;">%s</a></span>' % (self.link, name, self.text))
-        return mark_safe(u'\n'.join(output))
+        output.append('</select>')
+        output.append('<span><a href="%s" id="%s-link" style="display: inline;">%s</a></span>' % (self.link, name, self.text))
+        return mark_safe('\n'.join(output))
         
         
 class SelectInstitution(forms.widgets.Select):
@@ -36,13 +36,13 @@ class SelectInstitution(forms.widgets.Select):
         if value is None: 
             value = ''
         final_attrs = self.build_attrs(attrs, name=name)
-        output = [u'<select%s>' % flatatt(final_attrs)]
+        output = ['<select%s>' % flatatt(final_attrs)]
         options = self.render_options(choices, [value])
         if options:
             output.append(options)
-        output.append(u'</select>')
-        output.append(u'<span><input id="button_new_institution" onclick="%s" type="button" value="%s"/><span>' % (self.func, self.button_label))
-        return mark_safe(u'\n'.join(output))
+        output.append('</select>')
+        output.append('<span><input id="button_new_institution" onclick="%s" type="button" value="%s"/><span>' % (self.func, self.button_label))
+        return mark_safe('\n'.join(output))
         
 class YearMonthWidget(forms.MultiWidget):
     """

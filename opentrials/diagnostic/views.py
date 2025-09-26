@@ -122,7 +122,7 @@ def req_dump(request):
 
 @user_passes_test(lambda u: u.is_staff)
 def sys_info(request):
-    template = u'''
+    template = '''
     <h1>Revision</h1>
     %(svn_version)s
     <h1>settings path</h1>
@@ -143,12 +143,12 @@ def sys_info(request):
     from django.contrib.sites.models import Site
     from subprocess import Popen, PIPE
     svn_version, svn_version_err = Popen(['svnversion', settings.PROJECT_PATH], stdout=PIPE).communicate()
-    svn_version = svn_version.decode('utf-8') if svn_version else u''
-    svn_version_err = svn_version_err.decode('utf-8') if svn_version_err else u''
+    svn_version = svn_version.decode('utf-8') if svn_version else ''
+    svn_version_err = svn_version_err.decode('utf-8') if svn_version_err else ''
     site = Site.objects.get_current()
     svnout, svnerr = Popen(['svn', 'info','--non-interactive','--username=anonymous','--password=4guests@','-r', 'HEAD', settings.PROJECT_PATH], stdout=PIPE).communicate()
-    svnout = svnout.decode('utf-8') if svnout else u''
-    svnerr = svnerr.decode('utf-8') if svnerr else u''
+    svnout = svnout.decode('utf-8') if svnout else ''
+    svnerr = svnerr.decode('utf-8') if svnerr else ''
     return HttpResponse(template % {'site.pk':site.pk,
                                     'site.domain':site.domain,
                                     'site.name':site.name,

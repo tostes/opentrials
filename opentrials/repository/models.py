@@ -77,7 +77,7 @@ class TrialRegistrationDataSetModel(ControlledDeletion):
                 content = '<table bgcolor="yellow">%s</table>' % value.html_dump(seen, follow_sets=False)
             else:
                 content = str(value)
-                if u'\n' in content:
+                if '\n' in content:
                     content = linebreaks(content)
             html.append('<tr><th>%s</th><td>%s</td></tr>' % (field.name, content))
         if follow_sets:
@@ -97,7 +97,7 @@ class TrialRegistrationDataSetModel(ControlledDeletion):
                                 content = '<table>%s</table>' % rel_value.html_dump(seen, follow_sets=False)
                             else:
                                 content = str(rel_value)
-                            if u'\n' in content:
+                            if '\n' in content:
                                 content = linebreaks(content)
                             inner_html.append('<tr><th>%s</th><td>%s</td></tr>' % (id, content))
                         content = '<table>%s</table>' % '\n\t'.join(inner_html)
@@ -352,7 +352,7 @@ class ClinicalTrial(TrialRegistrationDataSetModel):
 
     # TRDS 11 - Countries of Recruitment
     recruitment_country = models.ManyToManyField(CountryCode,
-        help_text=u'Several countries may be selected, one at a time')
+        help_text='Several countries may be selected, one at a time')
 
     #Observational filelds
     is_observational = models.BooleanField(default=False, null=False)
@@ -414,8 +414,7 @@ class ClinicalTrial(TrialRegistrationDataSetModel):
         return safe_truncate(self.main_title(), 120)
 
     def very_short_title(self):
-        tit = u'%s - %s' % (self.identifier(),
-                            self.short_title())
+        tit = f"{self.identifier()} - {self.short_title()}"
         return safe_truncate(tit, 60)
 
     def main_title(self):
@@ -436,13 +435,13 @@ class ClinicalTrial(TrialRegistrationDataSetModel):
 
     def acronym_display(self):
         if self.acronym_expansion:
-            return u'%s: %s' % (self.acronym, self.acronym_expansion)
+            return f"{self.acronym}: {self.acronym_expansion}"
         else:
             return self.acronym
 
     def scientific_acronym_display(self):
         if self.scientific_acronym_expansion:
-            return u'%s: %s' % (self.scientific_acronym, self.scientific_acronym_expansion)
+            return f"{self.scientific_acronym}: {self.scientific_acronym_expansion}"
         else:
             return self.scientific_acronym
 
@@ -673,8 +672,8 @@ class Contact(TrialRegistrationDataSetModel):
     creator = models.ForeignKey(User, related_name='contact_creator', editable=False)
 
     def name(self):
-        names = self.firstname + u' ' + self.middlename + u' ' + self.lastname
-        return u' '.join(names.split())
+        names = self.firstname + ' ' + self.middlename + ' ' + self.lastname
+        return ' '.join(names.split())
 
     def __str__(self):
         return self.name()

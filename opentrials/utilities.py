@@ -22,24 +22,24 @@
 from django.http import HttpResponse
 from django.core import serializers
 
-ELLIPSIS = u'\u2026'
+ELLIPSIS = '\u2026'
 
 def safe_truncate(text, max_length=60, ellipsis=ELLIPSIS, encoding='utf-8',
                   raise_exc=False):
-    u'''truncate a string without breaking words
+    '''truncate a string without breaking words
 
-        >>> safe_truncate(u'the time has come', 9, u'>')
-        u'the time>'
-        >>> safe_truncate(u'the-time-has-come', 9, u'>')
-        u'the-time>'
-        >>> safe_truncate(u'the time', 8)
-        u'the time'
-        >>> safe_truncate(u'the time', 9)
-        u'the time'
-        >>> s = u'uncharacteristically-long'
-        >>> safe_truncate(s, 10, u'>')
-        u'uncharacteristically>'
-        >>> safe_truncate(s, 10, u'>', raise_exc=True)
+        >>> safe_truncate('the time has come', 9, '>')
+        'the time>'
+        >>> safe_truncate('the-time-has-come', 9, '>')
+        'the-time>'
+        >>> safe_truncate('the time', 8)
+        'the time'
+        >>> safe_truncate('the time', 9)
+        'the time'
+        >>> s = 'uncharacteristically-long'
+        >>> safe_truncate(s, 10, '>')
+        'uncharacteristically>'
+        >>> safe_truncate(s, 10, '>', raise_exc=True)
         Traceback (most recent call last):
           ...
         ValueError: Cannot safely truncate to 10 characters

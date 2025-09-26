@@ -18,10 +18,10 @@ class AdminFileLinkWidget(admin.widgets.AdminFileWidget):
         output = []
         if value and hasattr(value, "url"):
             output.append('<a target="_blank" href="%s">%s</a>' % \
-                           (value.url.replace(PROJECT_PATH, u''), \
-                            value.url.replace(PROJECT_PATH, u'').split("/")[-1], \
+                           (value.url.replace(PROJECT_PATH, ''), \
+                            value.url.replace(PROJECT_PATH, '').split("/")[-1], \
                            ))
-        return mark_safe(u''.join(output))
+        return mark_safe(''.join(output))
 
 class RecruitmentCountryInline(admin.TabularInline):
     model = RecruitmentCountry

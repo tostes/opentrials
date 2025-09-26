@@ -395,18 +395,18 @@ def get_humanizer(language_code, min_age_unit, max_age_unit):
             #see the index view callable
             humanized = [_('Inclusion Minimum Age')]
             try:
-                humanized.append(u'%s %s' % (denormalize_age(value, min_age_unit), age_unit_labels[min_age_unit]))
+                humanized.append(f"{denormalize_age(value, min_age_unit)} {age_unit_labels[min_age_unit]}")
             except KeyError:
-                humanized.append(u'%s %s' % (denormalize_age(value, 'Y'), age_unit_labels['Y']))
+                humanized.append(f"{denormalize_age(value, 'Y')} {age_unit_labels['Y']}")
             return humanized
         elif key == 'minimum_recruitment_age__lte':
             #due to the logic applied to the query, the key names are inverted (min an max age)
             #see the index view callable
             humanized = [_('Inclusion Maximum Age')]
             try:
-                humanized.append(u'%s %s' % (denormalize_age(value, max_age_unit), age_unit_labels[max_age_unit]))
+                humanized.append(f"{denormalize_age(value, max_age_unit)} {age_unit_labels[max_age_unit]}")
             except KeyError:
-                humanized.append(u'%s %s' % (denormalize_age(value, 'Y'), age_unit_labels['Y']))
+                humanized.append(f"{denormalize_age(value, 'Y')} {age_unit_labels['Y']}")
             return humanized
         else:
             return [key, default_str]
