@@ -1,4 +1,4 @@
-from django.core.urlresolvers import set_script_prefix
+from django.urls import set_script_prefix
 
 class ScriptPrefixMiddleware(object):
     """

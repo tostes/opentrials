@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib import admin
+from django.urls import reverse, re_path
 from django.utils.translation import ugettext as _
 from django.utils.functional import update_wrapper
 from django.http import HttpResponseRedirect
@@ -70,8 +71,6 @@ class PublishedTrialAdmin(admin.ModelAdmin):
     inlines = [InlineFossilIndexer]
 
     def get_urls(self):
-        from django.conf.urls.defaults import patterns, url
-
         default_urls = super(PublishedTrialAdmin, self).get_urls()
 
         def wrap(view):
@@ -79,11 +78,11 @@ class PublishedTrialAdmin(admin.ModelAdmin):
                 return self.admin_site.admin_view(view)(*args, **kwargs)
             return update_wrapper(wrapper, view)
 
-        urlpatterns = patterns('',
-                url(r'^(.+)/display-off/$', wrap(self.set_display_off), name='fossil_set_display_off'),
-                url(r'^(.+)/display-on/$', wrap(self.set_display_on), name='fossil_set_display_on'),
-                )
-        
+        urlpatterns = [
+                re_path(r'^(.+)/display-off/$', wrap(self.set_display_off), name='fossil_set_display_off'),
+                re_path(r'^(.+)/display-on/$', wrap(self.set_display_on), name='fossil_set_display_on'),
+                ]
+
         return urlpatterns + default_urls
 
     def set_display_off(self, request, object_id):
