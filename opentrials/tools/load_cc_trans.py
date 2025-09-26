@@ -1,39 +1,49 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
 Load translations for country names by country code
 '''
 
 ############# spells to setup the django machinery
-import sys, os
-here = os.path.abspath(os.path.split(__file__)[0])
-above = os.path.split(here)[0]
-sys.path.append(above)
+import os
+import sys
+from pathlib import Path
 
-from django.core.management import setup_environ
-import settings
-setup_environ(settings)
+import django
+
+here = Path(__file__).resolve().parent
+project_root = here.parent
+repo_root = project_root.parent
+
+for path in {project_root, repo_root}:
+    str_path = str(path)
+    if str_path not in sys.path:
+        sys.path.append(str_path)
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'opentrials.settings')
+django.setup()
 ############# /spells
 
 from vocabulary.models import CountryCode, VocabularyTranslation
 
 for language in ('pt', 'es'):
-
-    print 'loading', language,
-    filename = 'countries_%s.txt' % language
+    print(f'loading {language}', end=' ')
+    filename = here / f'countries_{language}.txt'
 
     unknown = []
-    for lin in (lin.strip() for lin in open(filename)):
-        if not lin or lin.startswith('#'):
-            continue
-        cc, name = lin.split(None,1)
-        try:
-            country = CountryCode.objects.get(label=cc)
-        except CountryCode.DoesNotExist:
-            unknown.append(cc)
-        #print '%s %-40s %-40s' % (cc, country, name)
-        trans = VocabularyTranslation(language=language, label=cc, description=name)
-        country.translations.add(trans)
+    with filename.open('r', encoding='utf-8') as lines:
+        for raw_line in lines:
+            line = raw_line.strip()
+            if not line or line.startswith('#'):
+                continue
+            cc, name = line.split(None, 1)
+            try:
+                country = CountryCode.objects.get(label=cc)
+            except CountryCode.DoesNotExist:
+                unknown.append(cc)
+                continue
+            translation = VocabularyTranslation(language=language, label=cc, description=name)
+            country.translations.add(translation)
     if unknown:
-        print '*** unknown:', unknown
-    print 'done'
+        print(f'*** unknown: {unknown}')
+    print('done')
