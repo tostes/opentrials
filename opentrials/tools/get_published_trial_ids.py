@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-from urllib import urlopen
 import re
+from urllib.request import urlopen
 
 BASE = 'http://www.ensaiosclinicos.gov.br/rg/?page='
 
@@ -11,12 +11,10 @@ re_link = re.compile(
 re_current = re.compile(r'''<span class="current">\s*(\d+)\s*</span>''')
 
 page = 1
-html_ant = ''
-
 trial_ids = []
 while True:
-    #print '*' * 50, page
-    html = urlopen(BASE+str(page)).read()
+    with urlopen(BASE + str(page)) as response:
+        html = response.read().decode('utf-8')
     res = re_current.findall(html)
     if len(res) == 0:
         break
@@ -26,7 +24,7 @@ while True:
     trial_ids.extend(res)
     page += 1
 for t in trial_ids:
-    print t
+    print(t)
 
 
 # em 2011-12-14 este script, bem como a inpeção visual da lista pública de 
