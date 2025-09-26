@@ -47,7 +47,7 @@ ACCESS = [
 ]
 
 class UserProfile(models.Model):
-    user = models.ForeignKey(User, unique=True)
+    user = models.OneToOneField(User)
     preferred_language = models.CharField(_('Preferred language'),max_length=10,
                                 choices=settings.MANAGED_LANGUAGES_CHOICES,
                                 default=settings.MANAGED_LANGUAGES_CHOICES[-1][0])
