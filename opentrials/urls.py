@@ -18,68 +18,71 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls.defaults import *
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import include, path
 from registration.forms import RegistrationFormUniqueEmail
+from registration.views import register
 
 import utilities
 
 from django.contrib import admin # Django admin UI
 admin.autodiscover()             # Django admin UI
 
-urlpatterns = patterns('',
+urlpatterns = [
     # Repository application
-    url(r'^rg/', include('opentrials.repository.urls')),
+    path('rg/', include('opentrials.repository.urls')),
 
     # Tickets application
-    url(r'^ticket/', include('opentrials.tickets.urls')),
+    path('ticket/', include('opentrials.tickets.urls')),
 
     # Assistance application
-    url(r'^assistance/', include('opentrials.assistance.urls')),
+    path('assistance/', include('opentrials.assistance.urls')),
 
     # Review application
-    url(r'^', include('opentrials.reviewapp.urls')),
+    path('', include('opentrials.reviewapp.urls')),
 
     # Django admin UI and documentation
-    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+    path('admin/doc/', include('django.contrib.admindocs.urls')),
+    path('admin/', admin.site.urls),
 
-    url(r'^decs/', include('opentrials.decsclient.urls')),
-    
-    url(r'^icd10/', include('opentrials.icd10client.urls')),
-    
+    path('decs/', include('opentrials.decsclient.urls')),
+
+    path('icd10/', include('opentrials.icd10client.urls')),
+
     # setting django-registration to use unique email form
-    url(r'^accounts/register/$', 'registration.views.register', 
-        {'backend': 'registration.backends.default.DefaultBackend', 
-        'form_class': RegistrationFormUniqueEmail},
-        name='registration_register'),
+    path(
+        'accounts/register/',
+        register,
+        {
+            'backend': 'registration.backends.default.DefaultBackend',
+            'form_class': RegistrationFormUniqueEmail,
+        },
+        name='registration_register'
+    ),
 
     # django-registration views
-    url(r'^accounts/', include('registration.urls')),
+    path('accounts/', include('registration.urls')),
 
     # system diagnostic views (may be disabled in production)
-    url(r'^diag/', include('opentrials.diagnostic.urls')),
-    
-    (r'^i18n/', include('django.conf.urls.i18n')),
-)
+    path('diag/', include('opentrials.diagnostic.urls')),
 
-from django.conf import settings
+    path('i18n/', include('django.conf.urls.i18n')),
+]
+
 if settings.DEBUG:
-    # serve static files from develpment server
-    urlpatterns += patterns('',
-        url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
-            {'document_root': settings.MEDIA_ROOT}),
-    )
+    # serve static files from development server
+    urlpatterns += static('static/', document_root=settings.MEDIA_ROOT)
 
     # Serve static XML files, specially DTD for XML references
-    import os, repository
+    import os
+    import repository
+
     REPOSITORY_XML_ROOT = os.path.join(os.path.dirname(repository.__file__), 'xml')
-    urlpatterns += patterns('',
-        url(r'^xml/(?P<path>.*)$', 'django.views.static.serve',
-            {'document_root': REPOSITORY_XML_ROOT}),
-    )
+    urlpatterns += static('xml/', document_root=REPOSITORY_XML_ROOT)
 
 if 'rosetta' in settings.INSTALLED_APPS:
-    urlpatterns += patterns('',
-        url(r'^rosetta/', include('rosetta.urls')),
-    )
+    urlpatterns += [
+        path('rosetta/', include('rosetta.urls')),
+    ]
 
