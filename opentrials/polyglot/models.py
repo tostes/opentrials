@@ -21,7 +21,7 @@ from django.db import models
 
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
@@ -97,7 +97,7 @@ class Translation(models.Model):
         abstract = True
         unique_together = (('content_type','object_id','language'),)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.language
 
     def natural_key(self):

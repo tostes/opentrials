@@ -1,7 +1,7 @@
 ############################################ Controlled Vocabularies ###
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes import generic
 from django.utils import simplejson
 
@@ -24,7 +24,7 @@ class SimpleVocabulary(models.Model):
         abstract = True
         ordering = ['order']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label
 
     def natural_key(self):
@@ -78,7 +78,7 @@ class CountryCode(SimpleVocabulary):
     class Meta:
         ordering = ['description']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.description
 
     @classmethod
@@ -133,13 +133,13 @@ class RecruitmentStatus(SimpleVocabulary):
 class DecsDisease(SimpleVocabulary):
     ''' TRDS 12 '''
 
-    def __unicode__(self):
+    def __str__(self):
         return self.description
 
 class IcdChapter(SimpleVocabulary):
     ''' TRDS 12 '''
 
-    def __unicode__(self):
+    def __str__(self):
         return self.description
 
 class AttachmentType(SimpleVocabulary):

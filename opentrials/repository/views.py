@@ -9,7 +9,7 @@ from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
@@ -24,7 +24,7 @@ from django.contrib.sites.models import Site
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib import messages
 from django.utils.translation import get_language
-from django.utils.encoding import smart_str, smart_unicode
+from django.utils.encoding import smart_str
 
 from reviewapp.models import Attachment, Submission, Remark
 from reviewapp.models import STATUS_PENDING, STATUS_RESUBMIT, STATUS_DRAFT, STATUS_APPROVED
@@ -132,8 +132,8 @@ def check_user_can_edit_trial(func):
         if request.ct.submission.status == STATUS_APPROVED:
             request.can_change_trial = False
             parsed_link = reverse(submission_edit_published, args=[trial_pk])
-            message_confirm_update = unicode(_("Updating a clinical trial, a new revision process will be started. Would you like to continue?"))
-            edit_trial_button_string = '<form action="%s" onsubmit="return window.confirm(\'%s\')"><input type="submit" value="%s"/> </form>' % (parsed_link,message_confirm_update,unicode(_('Update')))
+            message_confirm_update = str(_("Updating a clinical trial, a new revision process will be started. Would you like to continue?"))
+            edit_trial_button_string = '<form action="%s" onsubmit="return window.confirm(\'%s\')"><input type="submit" value="%s"/> </form>' % (parsed_link,message_confirm_update,str(_('Update')))
             messages.warning(request, _('This trial cannot be modified because it has already been approved.%s') % edit_trial_button_string)
 
         # Creator can edit in statuses draft and resubmited but can view on other statuses
@@ -670,7 +670,7 @@ def trial_registered(request, trial_fossil_id, trial_version=None):
     created = datetime.datetime.strptime(ct.fossil['created'], "%Y-%m-%d %H:%M:%S")
 
     if len(trial_fossil_id) == 64:
-        trial_fossil_id = unicode(fossil).split(' ')[0]
+        trial_fossil_id = str(fossil).split(' ')[0]
 
     trial = get_object_or_404(ClinicalTrial, trial_id=trial_fossil_id)
     attachs = [attach for attach in trial.trial_attach() if attach.public]
@@ -1398,7 +1398,7 @@ def custom_otcsv(request):
 
         try:
             trial_id = ClinicalTrial.objects.get(pk=submission['trial_id'])
-            trial_id = unicode(trial_id).split(' ')[0]
+            trial_id = str(trial_id).split(' ')[0]
         except:
             trial_id = "no_id"
 

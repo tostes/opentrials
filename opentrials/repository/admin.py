@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib import admin
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.utils.functional import update_wrapper
 from django.http import HttpResponseRedirect
 from django.db import models
@@ -149,8 +149,14 @@ class PublishedTrialAdmin(admin.ModelAdmin):
 
         # Other children objects
         for name, value in values_dict.items():
-            if name in ('__model__','scientific_acronym_display','acronym_display','pk',
-                    '__unicode__','date_enrollment_start',):
+            if name in (
+                '__model__',
+                'scientific_acronym_display',
+                'acronym_display',
+                'pk',
+                '__str__',
+                'date_enrollment_start',
+            ):
                 continue
 
             extra_context['trial_fields'].append({

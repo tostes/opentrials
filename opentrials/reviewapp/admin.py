@@ -55,8 +55,8 @@ class SubmissionAdmin(admin.ModelAdmin):
         super(SubmissionAdmin, self).save_model(request, instance, form, change)
         
 class RemarkAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'context', 'short_text', 'verified', 'status')
-    list_display_links = ('__unicode__', 'context', 'status')
+    list_display = ('__str__', 'context', 'short_text', 'verified', 'status')
+    list_display_links = ('__str__', 'context', 'status')
     search_fields = ('text', 'id', 'submission__id')
     list_filter = ('context', 'status', )
 
@@ -79,9 +79,16 @@ class NewsTranslationInline(TranslationInline):
         
 class NewsAdmin(TranslationAdmin):
     inlines = [NewsTranslationInline]
-    list_display = ('__unicode__', 'short_text', 'translation_completed', 
-                    'missing_translations', 'created', 'creator', 'status')
-    list_display_links = ('__unicode__', 'status')
+    list_display = (
+        '__str__',
+        'short_text',
+        'translation_completed',
+        'missing_translations',
+        'created',
+        'creator',
+        'status',
+    )
+    list_display_links = ('__str__', 'status')
     list_filter = ('created', 'status', 'translations')
     search_fields = ('title', 'text')
 

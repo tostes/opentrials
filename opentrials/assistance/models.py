@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes import generic
 
 from polyglot.models import Translation
@@ -13,7 +13,7 @@ class Category(models.Model):
     label = models.CharField(_('Label'), max_length=255, unique=True)
     translations = generic.GenericRelation('CategoryTranslation')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label
 
 class CategoryTranslation(Translation):
@@ -34,7 +34,7 @@ class Question(models.Model):
             self.order = self.id*10
             self.save()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 class QuestionTranslation(Translation):
@@ -59,7 +59,7 @@ class FieldHelp(models.Model):
 
     translations = generic.GenericRelation('FieldHelpTranslation')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.text
     
     def natural_key(self):

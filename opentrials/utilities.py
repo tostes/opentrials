@@ -44,8 +44,7 @@ def safe_truncate(text, max_length=60, ellipsis=ELLIPSIS, encoding='utf-8',
           ...
         ValueError: Cannot safely truncate to 10 characters
     '''
-    if not isinstance(text, unicode):
-        text = text.decode(encoding)
+    text = str(text)
     if len(text) <= max_length:
         return text
     # reverse-seek a non-alphanumeric character

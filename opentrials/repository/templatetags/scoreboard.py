@@ -1,6 +1,6 @@
 from repository.models import ClinicalTrial, ClinicalTrialTranslation
 from django.template import Library, Node, TemplateSyntaxError
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 register = Library()
 

@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.forms.models import inlineformset_factory
 from django.http import HttpResponseRedirect, HttpResponse
 from django import forms
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.contrib.auth.decorators import login_required
 
 from opentrials.tickets.models import Ticket, Followup
