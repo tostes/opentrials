@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.urls import path, re_path
 from django.contrib.auth.views import login, logout
 from django.contrib.auth.views import password_reset, password_reset_done
 from django.contrib.auth.views import password_reset_complete, password_reset_confirm
@@ -20,84 +20,84 @@ submissions = {
    'queryset':Submission.objects.all()
 }
 
-urlpatterns = patterns('',
+urlpatterns = [
 
-    url(r'^news/$', news_list, name='reviewapp.newslist'),
+    path('news/', news_list, name='reviewapp.newslist'),
 
-    url(r'^news/(?P<object_id>\d+)/$', news_detail, name='reviewapp.news'),
+    path('news/<int:object_id>/', news_detail, name='reviewapp.news'),
 
-    url(r'^accounts/dashboard/$', dashboard, name='reviewapp.dashboard'),
+    path('accounts/dashboard/', dashboard, name='reviewapp.dashboard'),
 
-    url(r'^accounts/profile/$', user_profile, name='reviewapp.userhome'),
+    path('accounts/profile/', user_profile, name='reviewapp.userhome'),
 
-    url(r'^accounts/uploadtrial/$', upload_trial, name='reviewapp.uploadtrial'), #same as accounts/profile
+    path('accounts/uploadtrial/', upload_trial, name='reviewapp.uploadtrial'), #same as accounts/profile
 
-    url(r'^accounts/submissionlist/$', submissions_list, name='reviewapp.submissionlist'), #same as accounts/profile
-    url(r'^accounts/reviewlist/$', reviewlist, name='reviewapp.reviewlist'),
+    path('accounts/submissionlist/', submissions_list, name='reviewapp.submissionlist'), #same as accounts/profile
+    path('accounts/reviewlist/', reviewlist, name='reviewapp.reviewlist'),
 
-   url(r'^accounts/allsubmissionslist/$', allsubmissionslist, name='reviewapp.allsubmissionslist'), #same as accounts/profile
+    path('accounts/allsubmissionslist/', allsubmissionslist, name='reviewapp.allsubmissionslist'), #same as accounts/profile
 
-    url(r'^accounts/submission/(\d+)/$', submission_detail,
+    path('accounts/submission/<int:pk>/', submission_detail,
         name='reviewapp.submission'),
 
-    url(r'^accounts/submission/delete/(\d+)/$', submission_delete,
+    path('accounts/submission/delete/<int:id>/', submission_delete,
         name='reviewapp.submission_delete'),
 
-    url(r'^accounts/submission/change/(?P<submission_pk>\d+)/(?P<status>[a-z]+)/$', change_submission_status,
+    path('accounts/submission/change/<int:submission_pk>/<slug:status>/', change_submission_status,
         name='reviewapp.change_submission_status'),
 
-    url(r'^accounts/newsubmission/$', new_submission,
+    path('accounts/newsubmission/', new_submission,
         name='reviewapp.new_submission'),
 
-    url(r'^accounts/termsofuse/$', terms_of_use,
+    path('accounts/termsofuse/', terms_of_use,
         name='reviewapp.terms_of_use'),
 
-    url(r'^accounts/submission/edit-published/(\d+)/$', submission_edit_published,
+    path('accounts/submission/edit-published/<int:pk>/', submission_edit_published,
         name='reviewapp.submission_edit_published'),
 
-    url(r'^accounts/userdump/$', user_dump),
+    path('accounts/userdump/', user_dump),
 
-    url(r'^accounts/login/$', login, dict(template_name='reviewapp/login.html',redirect_field_name='/'),
+    path('accounts/login/', login, dict(template_name='reviewapp/login.html',redirect_field_name='/'),
         name='reviewapp.login'),
 
-    url(r'^accounts/logout/$', logout, dict(next_page='/'),
+    path('accounts/logout/', logout, dict(next_page='/'),
         name='reviewapp.logout'),
 
-    url(r'^accounts/resend/activation/email/$', resend_activation_email,
+    path('accounts/resend/activation/email/', resend_activation_email,
         name='reviewapp.resend_activation_email'),
 
-    url(r'^accounts/password/reset/$', password_reset, {
+    path('accounts/password/reset/', password_reset, {
         'template_name': 'reviewapp/password_reset_form.html',
         'email_template_name': 'reviewapp/password_reset_email.html',
         'post_reset_redirect': '/accounts/password/reset/done/'},
         name='reviewapp.password_reset'),
 
-    url(r'^accounts/password/reset/done/$', password_reset_done,
+    path('accounts/password/reset/done/', password_reset_done,
         {'template_name': 'reviewapp/password_reset_done.html'},
         name='reviewapp.password_reset_done'),
 
-    url(r'^accounts/password/reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', password_reset_confirm, {
+    re_path(r'^accounts/password/reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', password_reset_confirm, {
         'template_name': 'reviewapp/password_reset_confirm.html',
         'post_reset_redirect': '/accounts/password/reset/complete/'},
         name='reviewapp.password_reset_confirm'),
 
-    url(r'^accounts/password/reset/complete/$', password_reset_complete,
+    path('accounts/password/reset/complete/', password_reset_complete,
         {'template_name': 'reviewapp/password_reset_complete.html'},
         name='reviewapp.password_reset_complete'),
 
-    url(r'^remark/open/(?P<submission_id>\d+)/(?P<context>[a-zA-Z0-9_\- ]+)/$', open_remark,
+    re_path(r'^remark/open/(?P<submission_id>\d+)/(?P<context>[a-zA-Z0-9_\- ]+)/$', open_remark,
         name='reviewapp.openremark'),
 
-    url(r'^contact/$', contact, name='reviewapp.contact'),
+    path('contact/', contact, name='reviewapp.contact'),
 
-    url(r'^remark/change/(?P<remark_id>\d+)/(?P<status>[a-z]+)/$', change_remark_status,
+    path('remark/change/<int:remark_id>/<slug:status>/', change_remark_status,
         name='reviewapp.changeremarkstatus'),
 
-    url(r'^remark/delete/(?P<remark_id>\d+)/$', delete_remark,
+    path('remark/delete/<int:remark_id>/', delete_remark,
         name='reviewapp.delete_remark'),
 
-    url(r'^rss/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',
+    re_path(r'^rss/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',
         {'feed_dict': {'trials': LastTrials, 'recruiting': LastRecruiting}}),
 
-    url(r'^$', index, name='reviewapp.home'),
-)
+    path('', index, name='reviewapp.home'),
+]

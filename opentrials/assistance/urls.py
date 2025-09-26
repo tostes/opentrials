@@ -1,8 +1,8 @@
-from django.conf.urls.defaults import *
+from django.urls import path
 
 from assistance.views import faq
 from assistance.models import Question
 
-urlpatterns = patterns('',
-    url(r'^faq/$', faq, name="assistance.faq"),
-)
+urlpatterns = [
+    path('faq/', faq, name="assistance.faq"),
+]
