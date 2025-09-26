@@ -1,22 +1,19 @@
 import os
+from collections import OrderedDict
 from subprocess import Popen, PIPE
 from datetime import date, datetime
-from django.conf import settings
-from django.http import HttpResponse
-from django.contrib.auth.decorators import user_passes_test
-from django.contrib.admin.views.decorators import staff_member_required
 
+from django.apps import apps
+from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import user_passes_test
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
-from django.core.management.commands.dumpdata import sort_dependencies
-from django.db import router, DEFAULT_DB_ALIAS
-from django.db.models import get_apps, get_app
-
-from django.shortcuts import render_to_response
-from django.utils.datastructures import SortedDict
-from django.template.context import RequestContext
-from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.db import DEFAULT_DB_ALIAS, router
+from django.http import HttpResponse
+from django.shortcuts import render
 
 BACKUP_DIR = getattr(settings, 'BACKUP_DIR', os.path.join(settings.MEDIA_ROOT, 'backup'))
 
@@ -43,9 +40,7 @@ def backup_database(request):
     
     files = default_storage.listdir(BACKUP_DIR)[1]
     files.sort(reverse=True)
-    return render_to_response('diagnostic/backupdb.html', 
-                                {'files':files,}, 
-                                context_instance=RequestContext(request))
+    return render(request, 'diagnostic/backupdb.html', {'files': files})
 
 @staff_member_required
 def export_database(request):
@@ -63,44 +58,45 @@ def export_database(request):
     pop2 = Popen(["bzip2", "-c"], stdin=pop1.stdout, stdout=PIPE, close_fds=True)
     output = pop2.communicate()[0]
     
-    response = HttpResponse(output, mimetype="application/octet-stream")
+    response = HttpResponse(output, content_type="application/octet-stream")
     response['Content-Disposition'] = 'attachment; filename=%s' % date.today().__str__()+'_db.sql.bz2'
     return response
 
 @staff_member_required
-def dump_data(request,appname):
-    app_list = SortedDict()
-    
+def dump_data(request, appname=None):
+    app_list = OrderedDict()
+
     try:
         if request.method == 'POST':
             for appname in request.POST.getlist('apps'):
-                app = get_app(appname)
-                app_list[app] = None
+                app_config = apps.get_app_config(appname)
+                app_list[app_config] = None
             appname = 'choices'
-        else:
-            app = get_app(appname)
-            app_list[app] = None
-    except ImproperlyConfigured:
+        elif appname:
+            app_config = apps.get_app_config(appname)
+            app_list[app_config] = None
+    except (ImproperlyConfigured, LookupError):
         if appname == 'all':
-            for app in get_apps():
-                app_list[app] = None
+            for app_config in apps.get_app_configs():
+                app_list[app_config] = None
 
-    if(len(app_list) > 0):
+    if len(app_list) > 0:
         objects = []
-        for model in sort_dependencies(app_list.items()):
-            if not model._meta.proxy and router.allow_syncdb(DEFAULT_DB_ALIAS, model):
-                objects.extend(model._default_manager.using(DEFAULT_DB_ALIAS).all())
+        for app_config in app_list:
+            for model in app_config.get_models():
+                if not model._meta.proxy and router.allow_migrate_model(DEFAULT_DB_ALIAS, model):
+                    objects.extend(model._default_manager.using(DEFAULT_DB_ALIAS).all())
         serializers.get_serializer('json')
-        json = serializers.serialize('json', objects, indent=2,use_natural_keys=True)
-        response = HttpResponse(json, mimetype='application/json');
+        json = serializers.serialize('json', objects, indent=2, use_natural_keys=True)
+        response = HttpResponse(json, content_type='application/json')
         response['Content-Disposition'] = 'attachment; filename=%s_%s_fixture.json' % (date.today().__str__(),appname)
         return response
 
-    return render_to_response('diagnostic/dumpdata.html',context_instance=RequestContext(request))
+    return render(request, 'diagnostic/dumpdata.html')
 
 def smoke_test(request):
     from datetime import datetime
-    return HttpResponse(datetime.now().strftime('%H:%M:%S'))
+    return HttpResponse(datetime.now().strftime('%H:%M:%S'), content_type='text/plain')
 
 @user_passes_test(lambda u: u.is_staff)
 def req_dump(request):
@@ -122,7 +118,7 @@ def req_dump(request):
     rows = []
     for k in request.POST.keys():
         rows.append('<tr><th>%s</th><td>%s</td></tr>' % (k, request.POST[k]))
-    return HttpResponse(template % ('\n'.join(rows)))
+    return HttpResponse(template % ('\n'.join(rows)), content_type='text/html')
 
 @user_passes_test(lambda u: u.is_staff)
 def sys_info(request):
@@ -159,11 +155,12 @@ def sys_info(request):
                                     'svn_version': svn_version + svn_version_err,
                                     'settingspath': settings.PROJECT_PATH,
                                     'syspath':'\n'.join(sys.path),
-                                    'svninfo':svnout + svnerr})
+                                    'svninfo':svnout + svnerr},
+                        content_type='text/html')
 
 @user_passes_test(lambda u: u.is_staff)
 def raise_error(request):
-    class FakeError(StandardError):
+    class FakeError(Exception):
         ''' this is just to test error e-mails and logging '''
     raise FakeError('This is not really an error')
 
