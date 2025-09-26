@@ -1,14 +1,14 @@
-from django.conf.urls.defaults import *
+from django.urls import path, re_path
 
 from diagnostic.views import *
 
-urlpatterns = patterns('',
+urlpatterns = [
     # Diagnostic views
-    url(r'^smoke/$', smoke_test),
-    url(r'^reqdump/$', req_dump),
-    url(r'^sysinfo/$', sys_info),
-    url(r'^error/$', raise_error),
-    url(r'^dumpdb/$', export_database),
-    url(r'^backupdb/$', backup_database, name='backup_database'),
-    url(r'^dumpdata/(?P<appname>[a-z_]+)?/?$', dump_data, name='dumpdata'),
-)
+    path('smoke/', smoke_test),
+    path('reqdump/', req_dump),
+    path('sysinfo/', sys_info),
+    path('error/', raise_error),
+    path('dumpdb/', export_database),
+    path('backupdb/', backup_database, name='backup_database'),
+    re_path(r'^dumpdata/(?P<appname>[a-z_]+)?/?$', dump_data, name='dumpdata'),
+]
