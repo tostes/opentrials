@@ -80,8 +80,8 @@ Just appending polyglot flatpages middleware to settings...
 
     >>> from flatpages_polyglot.middleware import FlatPagePolyglotMiddleware
 
-    >>> if 'flatpages_polyglot.middleware.FlatPagePolyglotMiddleware' not in settings.MIDDLEWARE_CLASSES:
-    ...     settings.MIDDLEWARE_CLASSES = settings.MIDDLEWARE_CLASSES + ('flatpages_polyglot.middleware.FlatPagePolyglotMiddleware',)
+    >>> if 'flatpages_polyglot.middleware.FlatPagePolyglotMiddleware' not in settings.MIDDLEWARE:
+    ...     settings.MIDDLEWARE = list(settings.MIDDLEWARE) + ['flatpages_polyglot.middleware.FlatPagePolyglotMiddleware']
 
 Getting flatpage for language defined in settings
 

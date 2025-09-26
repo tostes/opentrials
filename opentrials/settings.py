@@ -19,10 +19,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from django.contrib.localflavor.br import br_states
+from localflavor.br import br_states
 
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 
 ADMINS = (
@@ -52,70 +51,86 @@ USE_L10N = True
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
 
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
+STATICFILES_DIRS = []
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
+
 MEDIA_ROOT = os.path.join(PROJECT_PATH, 'static')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '/static/'
-
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/static/media/'
+MEDIA_URL = STATIC_URL
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '*06=j&&^n71^a&%%3rs%7lla+^(n^v1w@@dp_rxvi#&(xo7meq'
 
 # List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
-    'django.template.loaders.app_directories.load_template_source',
-#     'django.template.loaders.eggs.load_template_source',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(PROJECT_PATH, 'templates'),
+        ],
+        'APP_DIRS': False,
+        'OPTIONS': {
+            'debug': DEBUG,
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ],
+            'context_processors': [
+                'django.template.context_processors.auth',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.csrf',
+                'django.template.context_processors.media',
+                'django.template.context_processors.request',
+                'django.template.context_processors.static',
+                'context_processors.opentrials.polyglot',
+                'context_processors.opentrials.google_analytics',
+                'context_processors.opentrials.latest_tweets',
+                'context_processors.opentrials.debug',
+                'context_processors.opentrials.default_from_email',
+                'context_processors.opentrials.opentrials_version',
+            ],
+        },
+    },
+]
 
-MIDDLEWARE_CLASSES = (
-    'django.middleware.gzip.GZipMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.http.ConditionalGetMiddleware',
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
-
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'middleware.scriptprefix.ScriptPrefixMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.transaction.TransactionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'middleware.user_locale.UserLocaleMiddleware',
     'maintenance.middleware.MaintenanceMiddleware',
-    #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'flatpages_polyglot.middleware.FlatPagePolyglotMiddleware',
-)
+]
 
 ROOT_URLCONF = 'opentrials.urls'
 LOGIN_REDIRECT_URL = '/accounts/dashboard/'
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-
-    os.path.join(PROJECT_PATH, 'templates'),
-)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.flatpages',
-    'django.contrib.markup',
     'django.contrib.messages',
-    'django.contrib.syndication',
 
     'deleting',
     'vocabulary',
@@ -136,20 +151,6 @@ INSTALLED_APPS = (
     #'debug_toolbar',
     'compressor',
     'maintenance',
-)
-
-TEMPLATE_CONTEXT_PROCESSORS =(
-    'django.core.context_processors.auth',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.csrf',
-    'django.core.context_processors.media',
-    'django.core.context_processors.request',
-    'context_processors.opentrials.polyglot',
-    'context_processors.opentrials.google_analytics',
-    'context_processors.opentrials.latest_tweets',
-    'context_processors.opentrials.debug',
-    'context_processors.opentrials.default_from_email',
-    'context_processors.opentrials.opentrials_version',
 )
 
 AUTH_PROFILE_MODULE = "reviewapp.UserProfile"

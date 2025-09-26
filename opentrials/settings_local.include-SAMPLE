@@ -40,9 +40,8 @@ GOOGLE_ANALYTICS_ID = ''
 
 ### uncomment the lines below to change the default layout
 #MEDIA_ROOT = os.path.join(PROJECT_PATH, 'custom/ecgovbr/static')
-#TEMPLATE_DIRS = (
-#    os.path.join(PROJECT_PATH, 'custom/ecgovbr/templates'),
-#)
+#CUSTOM_TEMPLATE_DIR = os.path.join(PROJECT_PATH, 'custom/ecgovbr/templates')
+#TEMPLATES[0]['DIRS'] = [CUSTOM_TEMPLATE_DIR] + TEMPLATES[0]['DIRS']
 
 # Backup directory
 BACKUP_DIR = os.path.join(MEDIA_ROOT, 'backup')
@@ -50,10 +49,10 @@ BACKUP_DIR = os.path.join(MEDIA_ROOT, 'backup')
 if DEBUG:
     DEBUG_PROPAGATE_EXCEPTIONS = True
     
-    MIDDLEWARE_CLASSES += (
+    MIDDLEWARE += [
         ## external dependency for debug purposes only
         # 'debug_middleware.DebugFooter',
-    )
+    ]
 
     INSTALLED_APPS += (
         ## external dependency for generating model ER diagrams
