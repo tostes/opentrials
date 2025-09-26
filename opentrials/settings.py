@@ -165,7 +165,7 @@ AUTH_PROFILE_MODULE = "reviewapp.UserProfile"
 # in opentrials/fixtures/initial_data.json
 SITE_ID = 2 # change if necessary to match a record in django_site
 
-SITE_TITLE = u'Registro Brasileiro de Ensaios Clínicos'
+SITE_TITLE = 'Registro Brasileiro de Ensaios Clínicos'
 SEND_BROKEN_LINK_EMAILS = True
 DECS_SERVICE = 'http://decs.bvs.br/cgi-bin/mx/cgi=@vmx/decs'
 ICD10_SERVICE = 'http://bases.bireme.br/cgi-bin/mxlindG4.exe/cgi=@cid10/cid10'
@@ -178,15 +178,15 @@ TRIAL_ID_DIGITS = 6
 # 2) the first managed language is considered the default and is
 #    also the source language for content translation purposes
 MANAGED_LANGUAGES_CHOICES = (
-    (u'en', u'English'),
-    (u'es', u'Español'),
-    (u'pt-br', u'Português'),
+    ('en', 'English'),
+    ('es', 'Español'),
+    ('pt-br', 'Português'),
 )
 TARGET_LANGUAGES = MANAGED_LANGUAGES_CHOICES[1:] # exlude source language
 MANAGED_LANGUAGES = [code for code, label in MANAGED_LANGUAGES_CHOICES]
 # TODO: implement this as default on new submission forms
 #LANGUAGES = MANAGED_LANGUAGES_CHOICES
-DEFAULT_SUBMISSION_LANGUAGE = u'en'
+DEFAULT_SUBMISSION_LANGUAGE = 'en'
 
 # django-registration: for how long the activation link is valid
 ACCOUNT_ACTIVATION_DAYS = 7

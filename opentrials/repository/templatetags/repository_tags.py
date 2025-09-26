@@ -43,7 +43,7 @@ class ForTranslationNode(template.Node):
 
                 output.append(self.nodelist.render(context))
 
-        return u'\n'.join(output)
+        return '\n'.join(output)
 
     def get_value(self, obj, key):
         try:

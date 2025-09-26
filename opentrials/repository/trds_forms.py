@@ -48,7 +48,7 @@ class ReviewModelForm(MultilingualBaseForm):
             bf_errors = self.error_class([conditional_escape(error) for error in bf.errors]) # Escape and cache in local variable.
             if bf.is_hidden:
                 if bf_errors:
-                    top_errors.extend([u'(Hidden field %s) %s' % (name, force_str(e)) for e in bf_errors])
+                    top_errors.extend(['(Hidden field %s) %s' % (name, force_str(e)) for e in bf_errors])
                 hidden_fields.append(str(bf))
             else:
                 if errors_on_separate_row and bf_errors:
@@ -83,7 +83,7 @@ class ReviewModelForm(MultilingualBaseForm):
                 if field.help_text:
                     help_text = help_text_html % force_str(field.help_text)
                 else:
-                    help_text = u''
+                    help_text = ''
                 form_name = self.__class__.__name__
                 help_record, new = FieldHelp.objects.get_or_create(form=form_name, field=name)
 
@@ -122,7 +122,7 @@ class ReviewModelForm(MultilingualBaseForm):
         if top_errors:
             output.insert(0, error_row % force_str(top_errors))
         if hidden_fields: # Insert any hidden fields in the last row.
-            str_hidden = u''.join(hidden_fields)
+            str_hidden = ''.join(hidden_fields)
 
             if output:
                 last_row = output[-1]
@@ -146,20 +146,20 @@ class ReviewModelForm(MultilingualBaseForm):
                 # hidden fields.
                 output.append(str_hidden)
 
-        return mark_safe(u'\n'.join(output))
+        return mark_safe('\n'.join(output))
 
     def as_table(self):
         "Returns this form rendered as HTML <tr>s -- excluding the <table></table>."
-        normal_row = u'''
+        normal_row = '''
             <tr class="%(field_class)s %(field_name)s"><th><img src="/static/help.png" rel="#%(help_id)s"/>
                     <div id="%(help_id)s" class="help">%(help_text)s</div>
                     %(label)s</th>
                 <td>%(errors)s%(field)s
                 </td></tr>'''
         return self._html_output(normal_row=normal_row,
-                                 error_row=u'<tr><td colspan="3">%s</td></tr>',
+                                 error_row='<tr><td colspan="3">%s</td></tr>',
                                  row_ender='</td></tr>',
-                                 help_text_html=u'%s',
+                                 help_text_html='%s',
                                  errors_on_separate_row=False)
 
 #

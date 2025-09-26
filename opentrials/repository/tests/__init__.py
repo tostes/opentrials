@@ -12,12 +12,12 @@ class SecondaryNumbers(TestCase):
     fixtures = ['first_3_trials.json']
 
     def setUp(self):
-        title = u'Comparison of Ascorbic Acid and Grape Seed'
+        title = 'Comparison of Ascorbic Acid and Grape Seed'
         self.asc_trial = ClinicalTrial.objects.get(
             public_title__istartswith=title)
 
     def test_short_title(self):
-        start = u'Effect of Ascorbic Acid'
+        start = 'Effect of Ascorbic Acid'
         self.assertTrue(self.asc_trial.short_title().startswith(start))
 
     def test_secondary_numbers(self):
@@ -26,12 +26,12 @@ class SecondaryNumbers(TestCase):
     def test_public_contacts(self):
         contacts = list(self.asc_trial.public_contacts())
         self.assertEquals(len(contacts), 1)
-        self.assertEquals(contacts[0].firstname, u'Naser')
+        self.assertEquals(contacts[0].firstname, 'Naser')
 
     def test_scientific_contacts(self):
         contacts = list(self.asc_trial.scientific_contacts())
         self.assertEquals(len(contacts), 1)
-        self.assertEquals(contacts[0].firstname, u'Naser')
+        self.assertEquals(contacts[0].firstname, 'Naser')
 
 class Step3Test(TestCase):
     fixtures = ['first_3_trials.json']

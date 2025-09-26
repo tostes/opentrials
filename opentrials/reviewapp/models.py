@@ -53,10 +53,10 @@ class UserProfile(models.Model):
                                 default=settings.MANAGED_LANGUAGES_CHOICES[-1][0])
 
     def amount_submissions(self):
-        return u"%03d" % (Submission.objects.filter(creator=self.user).count())
+        return "%03d" % (Submission.objects.filter(creator=self.user).count())
 
     def amount_tickets(self):
-        return u"%03d" % (Ticket.objects.filter(creator=self.user).count())
+        return "%03d" % (Ticket.objects.filter(creator=self.user).count())
 
 class Submission(ControlledDeletion):
     class Meta:
@@ -69,7 +69,7 @@ class Submission(ControlledDeletion):
     created = models.DateTimeField(default=datetime.now, editable=False)
     updater = models.ForeignKey(User, null=True, related_name='submission_updater', editable=False)
     updated = models.DateTimeField(null=True, editable=False)
-    title = models.TextField(u'Scientific title', max_length=2000)
+    title = models.TextField('Scientific title', max_length=2000)
     primary_sponsor = models.ForeignKey(Institution, null=True, blank=True,
                                     verbose_name=_('Primary Sponsor'))
 
@@ -104,7 +104,7 @@ class Submission(ControlledDeletion):
         return self.short_title()
 
     def get_mandatory_languages(self):
-        langs = set([u'en'])
+        langs = {'en'}
         if self.trial.primary_sponsor is not None:
             langs.add(self.trial.primary_sponsor.country.submission_language)
 
@@ -192,7 +192,7 @@ class Attachment(models.Model):
     public = models.BooleanField(_('Public'))
 
     def get_relative_url(self):
-        return self.file.url.replace(settings.PROJECT_PATH, u'')
+        return self.file.url.replace(settings.PROJECT_PATH, '')
 
     def __str__(self):
         return str(self.description)
