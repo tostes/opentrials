@@ -1,13 +1,13 @@
 import datetime
-import random
+import hashlib
 import re
+import secrets
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db import transaction
 from django.template.loader import render_to_string
-from django.utils.hashcompat import sha_constructor
 from django.utils.translation import gettext_lazy as _
 
 
@@ -59,6 +59,7 @@ class RegistrationManager(models.Manager):
                 return user
         return False
     
+    @transaction.atomic
     def create_inactive_user(self, username, email, password,
                              site, send_email=True):
         """
@@ -80,8 +81,6 @@ class RegistrationManager(models.Manager):
             registration_profile.send_activation_email(site)
 
         return new_user
-    create_inactive_user = transaction.commit_on_success(create_inactive_user)
-
     def create_profile(self, user):
         """
         Create a ``RegistrationProfile`` for a given
@@ -92,9 +91,9 @@ class RegistrationManager(models.Manager):
         username and a random salt.
         
         """
-        salt = sha_constructor(str(random.random())).hexdigest()[:5]
-        username = str(user.username)
-        activation_key = sha_constructor(salt+username).hexdigest()
+        salt = hashlib.sha1(secrets.token_bytes(16)).hexdigest()[:5]
+        username = user.username
+        activation_key = hashlib.sha1((salt + username).encode("utf-8")).hexdigest()
         return self.create(user=user,
                            activation_key=activation_key)
         
@@ -163,7 +162,7 @@ class RegistrationProfile(models.Model):
     """
     ACTIVATED = u"ALREADY_ACTIVATED"
     
-    user = models.ForeignKey(User, unique=True, verbose_name=_('user'))
+    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('user'))
     activation_key = models.CharField(_('activation key'), max_length=40)
     
     objects = RegistrationManager()
