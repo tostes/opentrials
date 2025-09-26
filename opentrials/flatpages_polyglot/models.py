@@ -8,7 +8,7 @@ class FlatPageTranslation(Translation):
     title = models.CharField(max_length=255, blank=True)
     content = models.TextField(max_length=2000, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 FlatPage.translations = generic.GenericRelation(FlatPageTranslation)

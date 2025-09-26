@@ -8,7 +8,7 @@ from django.db import models
 from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils.hashcompat import sha_constructor
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 SHA1_RE = re.compile('^[a-f0-9]{40}$')
@@ -93,9 +93,7 @@ class RegistrationManager(models.Manager):
         
         """
         salt = sha_constructor(str(random.random())).hexdigest()[:5]
-        username = user.username
-        if isinstance(username, unicode):
-            username = username.encode('utf-8')
+        username = str(user.username)
         activation_key = sha_constructor(salt+username).hexdigest()
         return self.create(user=user,
                            activation_key=activation_key)
@@ -174,8 +172,8 @@ class RegistrationProfile(models.Model):
         verbose_name = _('registration profile')
         verbose_name_plural = _('registration profiles')
     
-    def __unicode__(self):
-        return u"Registration information for %s" % self.user
+    def __str__(self):
+        return f"Registration information for {self.user}"
     
     def activation_key_expired(self):
         """

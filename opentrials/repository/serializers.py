@@ -96,7 +96,7 @@ def serialize_trial(trial, as_string=True, attrs_to_ignore=None):
             json['date_enrollment_start'] = '/'.join(date)
 
     # Meta or auxiliar attributes
-    json['__unicode__'] = unicode(trial)
+    json['__str__'] = str(trial)
     json['__model__'] = trial.__class__.__name__
     json['pk'] = trial.pk
 

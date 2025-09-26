@@ -13,9 +13,9 @@ from repository.widgets import SelectWithLink, SelectInstitution, YearMonthWidge
 
 import choices
 
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _, get_language
+from django.utils.translation import gettext_lazy as _, get_language
 from django.forms.formsets import DELETION_FIELD_NAME
 from django.template.defaultfilters import linebreaksbr
 
@@ -48,13 +48,13 @@ class ReviewModelForm(MultilingualBaseForm):
             bf_errors = self.error_class([conditional_escape(error) for error in bf.errors]) # Escape and cache in local variable.
             if bf.is_hidden:
                 if bf_errors:
-                    top_errors.extend([u'(Hidden field %s) %s' % (name, force_unicode(e)) for e in bf_errors])
-                hidden_fields.append(unicode(bf))
+                    top_errors.extend([u'(Hidden field %s) %s' % (name, force_str(e)) for e in bf_errors])
+                hidden_fields.append(str(bf))
             else:
                 if errors_on_separate_row and bf_errors:
-                    output.append(error_row % force_unicode(bf_errors))
+                    output.append(error_row % force_str(bf_errors))
                 if bf.label:
-                    label = conditional_escape(force_unicode(bf.label))
+                    label = conditional_escape(force_str(bf.label))
                     # Only add the suffix if the label does not end in
                     # punctuation.
                     if self.label_suffix:
@@ -81,7 +81,7 @@ class ReviewModelForm(MultilingualBaseForm):
                     field_status = ''
 
                 if field.help_text:
-                    help_text = help_text_html % force_unicode(field.help_text)
+                    help_text = help_text_html % force_str(field.help_text)
                 else:
                     help_text = u''
                 form_name = self.__class__.__name__
@@ -97,17 +97,17 @@ class ReviewModelForm(MultilingualBaseForm):
                         help_text = "%s<div class='help_text_example'>%s:<br />%s</div>" % (help_text, _("Example"), help_object.example)
 
                     if not help_text.strip():
-                        help_text = unicode(help_record)
+                        help_text = str(help_record)
                 except (FieldHelpTranslation.DoesNotExist, AttributeError):
                     help_text = "<div class='help_text'>%s</div>" % (help_record.text,)
                     if help_record.example:
                         help_text = "%s<div class='help_text_example'>%s:<br />%s</div>" % (help_text, _("Example"), help_record.example)
 
-                help_text = u'' + force_unicode(help_text)
+                help_text = force_str(help_text)
                 help_text = linebreaksbr(help_text_html % help_text)
-                output.append(normal_row % {'errors': force_unicode(bf_errors),
-                                            'label': force_unicode(label),
-                                            'field': unicode(bf),
+                output.append(normal_row % {'errors': force_str(bf_errors),
+                                            'label': force_str(label),
+                                            'field': str(bf),
                                             'help_text': help_text,
                                             'help_id': 'id_%s-help%s' % ((self.prefix or name),help_record.pk),
                                             'field_class': field_status,
@@ -120,7 +120,7 @@ class ReviewModelForm(MultilingualBaseForm):
                 self.Meta.count = self.Meta.count + 1
 
         if top_errors:
-            output.insert(0, error_row % force_unicode(top_errors))
+            output.insert(0, error_row % force_str(top_errors))
         if hidden_fields: # Insert any hidden fields in the last row.
             str_hidden = u''.join(hidden_fields)
 
@@ -408,7 +408,7 @@ class RecruitmentForm(ReviewModelForm):
 
     def clean_enrollment_end_date(self):
         if self.cleaned_data.get('recruitment_status'):
-            if self.cleaned_data.get('recruitment_status').label == unicode(_('recruiting')):
+            if self.cleaned_data.get('recruitment_status').label == str(_('recruiting')):
                 if self.cleaned_data.get('enrollment_end_date', None) is None:
                     raise forms.ValidationError(_("Recruiting trial requires an end date"))
 
@@ -417,7 +417,7 @@ class RecruitmentForm(ReviewModelForm):
 
     def clean_enrollment_start_date(self):
         if self.cleaned_data.get('recruitment_status'):
-            if self.cleaned_data.get('recruitment_status').label == unicode(_('recruiting')):
+            if self.cleaned_data.get('recruitment_status').label == str(_('recruiting')):
                 if self.cleaned_data.get('enrollment_start_date', None) is None:
                     raise forms.ValidationError(_("Recruiting trial requires a start date"))
 

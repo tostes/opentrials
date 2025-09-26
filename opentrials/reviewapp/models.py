@@ -3,7 +3,7 @@ from datetime import datetime
 from django.db import models
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes import generic
 from django.utils import simplejson
 
@@ -100,7 +100,7 @@ class Submission(ControlledDeletion):
     def creator_username(self):
         return self.creator.username
 
-    def __unicode__(self):
+    def __str__(self):
         return self.short_title()
 
     def get_mandatory_languages(self):
@@ -194,8 +194,8 @@ class Attachment(models.Model):
     def get_relative_url(self):
         return self.file.url.replace(settings.PROJECT_PATH, u'')
 
-    def __unicode__(self):
-        return u"%s" % self.description
+    def __str__(self):
+        return str(self.description)
 
 REMARK_STATUS = [
     # initial state, as created by reviewer
@@ -242,8 +242,8 @@ class Remark(models.Model):
     status_acknowledged = RemarksAcknowledged()
     status_closed = RemarksClosed()
 
-    def __unicode__(self):
-        return '%s:%s' % (self.pk, self.submission_id)
+    def __str__(self):
+        return f"{self.pk}:{self.submission_id}"
 
     def short_text(self):
         return safe_truncate(self.text, 60)
@@ -275,8 +275,8 @@ class News(models.Model):
     def short_text(self):
         return safe_truncate(self.text, 240)
 
-    def __unicode__(self):
-        return '%s' % (self.short_title())
+    def __str__(self):
+        return str(self.short_title())
 
 class NewsTranslation(Translation):
     title = models.CharField(_('Title'), max_length=256)

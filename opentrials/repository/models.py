@@ -1,6 +1,6 @@
 from django.db import models, IntegrityError
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.html import linebreaks
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
@@ -76,7 +76,7 @@ class TrialRegistrationDataSetModel(ControlledDeletion):
                 seen.add(value.__class__.__name__)
                 content = '<table bgcolor="yellow">%s</table>' % value.html_dump(seen, follow_sets=False)
             else:
-                content = unicode(value)
+                content = str(value)
                 if u'\n' in content:
                     content = linebreaks(content)
             html.append('<tr><th>%s</th><td>%s</td></tr>' % (field.name, content))
@@ -96,7 +96,7 @@ class TrialRegistrationDataSetModel(ControlledDeletion):
                                 seen.add(rel_value.__class__.__name__)
                                 content = '<table>%s</table>' % rel_value.html_dump(seen, follow_sets=False)
                             else:
-                                content = unicode(rel_value)
+                                content = str(rel_value)
                             if u'\n' in content:
                                 content = linebreaks(content)
                             inner_html.append('<tr><th>%s</th><td>%s</td></tr>' % (id, content))
@@ -424,8 +424,8 @@ class ClinicalTrial(TrialRegistrationDataSetModel):
         else:
             return self.scientific_title
 
-    def __unicode__(self):
-        return u'%s %s' % (self.identifier(), self.short_title())
+    def __str__(self):
+        return f"{self.identifier()} {self.short_title()}"
 
     def trial_id_display(self):
         ''' return the trial id or an explicit message it is None '''
@@ -607,8 +607,8 @@ class TrialNumber(TrialRegistrationDataSetModel):
     id_number = models.CharField(_('Secondary Id Number'),
                                 max_length=255, db_index=True)
 
-    def __unicode__(self):
-        return u'%s: %s' % (self.issuing_authority, self.id_number)
+    def __str__(self):
+        return f"{self.issuing_authority}: {self.id_number}"
 
     def serialize_for_fossil(self, as_string=True):
         return serialize_trialnumber(self, as_string)
@@ -618,8 +618,8 @@ class TrialSecondarySponsor(TrialRegistrationDataSetModel):
     trial = models.ForeignKey(ClinicalTrial)
     institution = models.ForeignKey('Institution', verbose_name=_('Institution'))
 
-    def __unicode__(self):
-        return u'%s' % self.institution
+    def __str__(self):
+        return str(self.institution)
 
     def serialize_for_fossil(self, as_string=True):
         return serialize_trialsecondarysponsor(self, as_string)
@@ -629,8 +629,8 @@ class TrialSupportSource(TrialRegistrationDataSetModel):
     trial = models.ForeignKey(ClinicalTrial)
     institution = models.ForeignKey('Institution', verbose_name=_('Institution'))
 
-    def __unicode__(self):
-        return u'%s' % self.institution
+    def __str__(self):
+        return str(self.institution)
 
     def serialize_for_fossil(self, as_string=True):
         return serialize_trialsupportsource(self, as_string)
@@ -647,7 +647,7 @@ class Institution(TrialRegistrationDataSetModel):
     i_type = models.ForeignKey(InstitutionType, null=True, blank=True,
                                            verbose_name=_('Institution type'))
 
-    def __unicode__(self):
+    def __str__(self):
         return safe_truncate(self.name, 120)
 
     def serialize_for_fossil(self, as_string=True):
@@ -676,7 +676,7 @@ class Contact(TrialRegistrationDataSetModel):
         names = self.firstname + u' ' + self.middlename + u' ' + self.lastname
         return u' '.join(names.split())
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name()
 
     def serialize_for_fossil(self, as_string=True):
@@ -691,9 +691,11 @@ class PublicContact(TrialRegistrationDataSetModel):
     class Meta:
         unique_together = ('trial', 'contact')
 
-    def __unicode__(self):
-        return u'Public Contact for %s: %s (%s)' % (self.trial.short_title(),
-                                     self.contact.name(), self.status)
+    def __str__(self):
+        return (
+            f"Public Contact for {self.trial.short_title()}: {self.contact.name()}"
+            f" ({self.status})"
+        )
 
 class ScientificContact(TrialRegistrationDataSetModel):
     trial = models.ForeignKey(ClinicalTrial)
@@ -704,9 +706,11 @@ class ScientificContact(TrialRegistrationDataSetModel):
     class Meta:
         unique_together = ('trial', 'contact')
 
-    def __unicode__(self):
-        return u'Scientific Contact for %s: %s (%s)' % (self.trial.short_title(),
-                                     self.contact.name(), self.status)
+    def __str__(self):
+        return (
+            f"Scientific Contact for {self.trial.short_title()}: {self.contact.name()}"
+            f" ({self.status})"
+        )
 
 class SiteContact(TrialRegistrationDataSetModel):
     trial = models.ForeignKey(ClinicalTrial)
@@ -717,9 +721,11 @@ class SiteContact(TrialRegistrationDataSetModel):
     class Meta:
         unique_together = ('trial', 'contact')
 
-    def __unicode__(self):
-        return u'Site Contact for %s: %s (%s)' % (self.trial.short_title(),
-                                     self.contact.name(), self.status)
+    def __str__(self):
+        return (
+            f"Site Contact for {self.trial.short_title()}: {self.contact.name()}"
+            f" ({self.status})"
+        )
 
 # TRDS 19 - Primary Outcome(s)
 # TRDS 20 - Key Secondary Outcome(s)
@@ -736,7 +742,7 @@ class Outcome(TrialRegistrationDataSetModel):
     class Meta:
         order_with_respect_to = 'trial'
 
-    def __unicode__(self):
+    def __str__(self):
         return safe_truncate(self.description, 80)
 
     def translations_all(self):
@@ -766,8 +772,8 @@ class Descriptor(TrialRegistrationDataSetModel):
 
     translations = generic.GenericRelation('DescriptorTranslation')
 
-    def __unicode__(self):
-        return u'[%s] %s: %s' % (self.vocabulary, self.code, self.text)
+    def __str__(self):
+        return f"[{self.vocabulary}] {self.code}: {self.text}"
 
     def trial_identifier(self):
         return self.trial.identifier()

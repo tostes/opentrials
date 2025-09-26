@@ -27,7 +27,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import EMPTY_VALUES
 from django.forms.models import BaseModelFormSet
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.forms.models import modelformset_factory as django_modelformset_factory
 from django.forms.formsets import DELETION_FIELD_NAME
 

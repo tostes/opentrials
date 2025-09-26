@@ -142,7 +142,7 @@ class TrialValidator(object):
                                                 else:
                                                     if step_status.get(lang, '') != MISSING:
                                                         step_status.update({lang: PARTIAL})
-                                            elif type(value) is str or type(value) is unicode:
+                                            elif isinstance(value, str):
                                                 if re.match('^\s*$', value):
                                                     if step_status.get(lang, '') != MISSING:
                                                         step_status.update({lang: MISSING})
@@ -187,7 +187,7 @@ class TrialValidator(object):
                                                     else:
                                                         if step_status.get(lang, '') != MISSING:
                                                             step_status.update({lang: PARTIAL})
-                                                elif type(value) is str or type(value) is unicode:
+                                                elif isinstance(value, str):
                                                     if re.match('^\s*$', value):
                                                         if check_fields[field]['required']:
                                                             step_status.update({lang: MISSING})

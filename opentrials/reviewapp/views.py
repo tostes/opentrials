@@ -18,7 +18,7 @@ from django.contrib.sites.models import RequestSite
 from django.contrib.sites.models import Site
 from django.contrib.flatpages.models import FlatPage
 from django.contrib import messages
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.db.models import Q
 
 from flatpages_polyglot.models import FlatPageTranslation
@@ -57,7 +57,7 @@ def send_opentrials_email(subject, message, recipient):
         t = loader.get_template('reviewapp/email_contact.txt')
         c = Context({
                     'name': name,
-                    'message': unicode(message),
+                    'message': str(message),
                     'site_domain': Site.objects.get_current().domain,
                     'site_name': Site.objects.get_current().name, })
         send_mail(subject, t.render(c), from_email, recipient_list,

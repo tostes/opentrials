@@ -27,8 +27,8 @@ Serializing
 
     >>> json_should_be = {
     ...     'pk': trial_small.pk,
-    ...     '__unicode__': unicode(trial_small),
-    ...     '__model__': unicode('ClinicalTrial'),
+    ...     '__str__': str(trial_small),
+    ...     '__model__': 'ClinicalTrial',
     ...     'id': trial_small.pk,
     ...     'trial_id': None,
     ...     'date_registration': None,
@@ -295,8 +295,8 @@ Serializing
 
     >>> json_should_be = {
     ...     'pk': trial_big.pk,
-    ...     '__unicode__': unicode(trial_big),
-    ...     '__model__': unicode('ClinicalTrial'),
+    ...     '__str__': str(trial_big),
+    ...     '__model__': 'ClinicalTrial',
     ...     'id': trial_big.pk,
     ...     'trial_id': trial_big.trial_id,
     ...     'date_registration': trial_big.date_registration.strftime('%Y-%m-%d %H:%M:%S'),
@@ -409,7 +409,7 @@ Small changes (changing a field of the clinical trial)
     >>> fossil_small1 != fossil_small2
     True
 
-    >>> fossil_small2.display_text == unicode(trial_small)
+    >>> fossil_small2.display_text == str(trial_small)
     True
 
 Changes on referenced (changing a foreign object that the current trial is dependent)
@@ -424,7 +424,7 @@ Changes on referenced (changing a foreign object that the current trial is depen
     >>> fossil_big1 != fossil_big2
     True
 
-    >>> fossil_big2.display_text == unicode(trial_big)
+    >>> fossil_big2.display_text == str(trial_big)
     True
 
 Testing fossil proxy object
@@ -437,7 +437,7 @@ Testing fossil proxy object
     >>> fossil_small2_obj.public_title == trial_small.public_title
     True
 
-    >>> unicode(fossil_small2_obj) == unicode(trial_small)
+    >>> str(fossil_small2_obj) == str(trial_small)
     True
 
 

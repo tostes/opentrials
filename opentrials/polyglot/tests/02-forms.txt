@@ -148,7 +148,7 @@ When a form is instantiated, the choices of a multilingual choice field are show
 on the display language informed.
 
     >>> data = {
-    ...     'page': unicode(page.pk),
+    ...     'page': str(page.pk),
     ...     'information': 'Nothing important here.',
     ... }
 
@@ -159,7 +159,7 @@ on the display language informed.
     ...     display_language='pt-br',
     ... )
 
-    >>> renderized = form.fields['page'].widget.render('page', unicode(page.pk))
+    >>> renderized = form.fields['page'].widget.render('page', str(page.pk))
     >>> (renderized.startswith(u'<select name="page">'),
     ... u'>Sobre o Teste<' in renderized,
     ... u' selected="selected">Título em português brasileiro<' in renderized,
