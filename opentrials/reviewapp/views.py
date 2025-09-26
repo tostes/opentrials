@@ -2,7 +2,7 @@
 from django.http import Http404, HttpResponse
 from reviewapp.models import UserProfile, REMARK_TRANSITIONS, Remark
 from registration.models import RegistrationProfile
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render_to_response, get_object_or_404
