@@ -3,3 +3,5 @@ opentrials/settings_local.include
 *.egg-info/
 *.komodoproject
 .venv/
+opentrials_ng/db.sqlite3
+opentrials_ng/staticfiles/
