@@ -1,25 +1,17 @@
 # coding: utf-8
 
-try:
-    set
-except:
-    from sets import Set as set
-
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.forms.models import inlineformset_factory
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.template import loader
 from django.db.models import Q
-from django.views.generic.list_detail import object_list
 from django.conf import settings
 from django.template.defaultfilters import slugify
-from django.template.context import RequestContext
 from django.contrib.sites.models import Site
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib import messages
@@ -63,7 +55,7 @@ import datetime
 import choices
 import settings
 import csv
-import cStringIO
+import io
 from zipfile import ZipFile, ZIP_DEFLATED
 
 EXTRA_FORMS = 1
@@ -150,10 +142,10 @@ def check_user_can_edit_trial(func):
             if not( request.ct.submission.status == STATUS_PENDING and
                     user_in_group(request.user, 'reviewers') ):
 
-                resp = render_to_response(
+                resp = render(
+                        request,
                         '403.html',
                         {'site': Site.objects.get_current()},
-                        context_instance=RequestContext(request),
                         )
                 resp.status_code = 403
 
@@ -251,21 +243,19 @@ def edit_trial_index(request, trial_pk):
             status_message['icon'] = settings.MEDIA_URL + 'media/img/admin/icon_error.gif'
             status_message['msg'] = _("Error")
 
-        return render_to_response('repository/trial_index.html',
-                                  {'trial_pk':trial_pk,
-                                   'submission':ct.submission,
-                                   'links':links,
-                                   'status': status,
-                                   'submit': submit,
-                                   'status_message': status_message,},
-                                   context_instance=RequestContext(request))
+        return render(request, 'repository/trial_index.html',
+                      {'trial_pk':trial_pk,
+                       'submission':ct.submission,
+                       'links':links,
+                       'status': status,
+                       'submit': submit,
+                       'status_message': status_message,})
 
 def full_view(request, trial_pk):
     ''' full view '''
     ct = get_object_or_404(ClinicalTrial, id=int(trial_pk))
-    return render_to_response('repository/trds.html',
-                              {'fieldtable':ct.html_dump()},
-                               context_instance=RequestContext(request))
+    return render(request, 'repository/trds.html',
+                  {'fieldtable':ct.html_dump()})
 
 
 def recruiting(request):
@@ -315,11 +305,10 @@ def recruiting(request):
         objects = paginator.page(paginator.num_pages)
 
 
-    return render_to_response('repository/clinicaltrial_recruiting.html',
-                              {'objects': objects,
-                               'page': page,
-                               'paginator': paginator},
-                               context_instance=RequestContext(request))
+    return render(request, 'repository/clinicaltrial_recruiting.html',
+                  {'objects': objects,
+                   'page': page,
+                   'paginator': paginator})
 
 #Applied Search Criteria
 def get_humanizer(language_code, min_age_unit, max_age_unit):
@@ -472,16 +461,15 @@ def index(request):
     search_filters = [search_humanizer(k, v)
                         for k, v in filters.items() if v]
 
-    return render_to_response('repository/clinicaltrial_list.html',
-                              {'objects': objects,
-                               'page': page,
-                               'paginator': paginator,
-                               'q': q,
-                               'unsubmiteds':unsubmiteds,
-                               'outdated_flag':settings.MEDIA_URL + 'media/img/admin/icon_error.gif',
-                               'search_filters': dict(search_filters),
-                               },
-                               context_instance=RequestContext(request))
+    return render(request, 'repository/clinicaltrial_list.html',
+                  {'objects': objects,
+                   'page': page,
+                   'paginator': paginator,
+                   'q': q,
+                   'unsubmiteds':unsubmiteds,
+                   'outdated_flag':settings.MEDIA_URL + 'media/img/admin/icon_error.gif',
+                   'search_filters': dict(search_filters),
+                   })
 
 @login_required
 def trial_view(request, trial_pk):
@@ -491,8 +479,7 @@ def trial_view(request, trial_pk):
     if not request.user.is_staff and not user_in_group(request.user, 'reviewers'):
         review_mode = False
         if request.user != ct.submission.creator:
-            return render_to_response('403.html', {'site': Site.objects.get_current(),},
-                            context_instance=RequestContext(request))
+            return render(request, '403.html', {'site': Site.objects.get_current(),})
 
     if review_mode:
         can_approve = ct.submission.status == STATUS_PENDING and ct.submission.remark_set.exclude(status='closed').count() == 0
@@ -608,8 +595,7 @@ def trial_view(request, trial_pk):
     enrollment_end_date = ct.enrollment_end_actual if \
         ct.enrollment_end_actual is not None else ct.enrollment_end_planned
 
-    return render_to_response('repository/clinicaltrial_detail_user.html',
-                                {'object': ct,
+    return render(request, 'repository/clinicaltrial_detail_user.html', {'object': ct,
                                 'translations': translations,
                                 'host': request.get_host(),
                                 'remark_list': remark_list,
@@ -624,8 +610,7 @@ def trial_view(request, trial_pk):
                                 'site_contacts': site_contacts_list,
                                 'enrollment_start_date': enrollment_start_date,
                                 'enrollment_end_date': enrollment_end_date,
-                                },
-                                context_instance=RequestContext(request))
+                                })
 
 def get_sorted_languages(request):
     # This just copy managed languages to sorte with main language first
@@ -681,8 +666,7 @@ def trial_registered(request, trial_fossil_id, trial_version=None):
         time_perspective = None
     observational_study_design = trial.observational_study_design
 
-    return render_to_response('repository/clinicaltrial_detail_published.html',
-                                {'object': ct,
+    return render(request, 'repository/clinicaltrial_detail_published.html', {'object': ct,
                                 'attachs': attachs,
                                 'translations': translations,
                                 'time_perspective':time_perspective,
@@ -693,8 +677,7 @@ def trial_registered(request, trial_fossil_id, trial_version=None):
                                 'scientific_title': scientific_title,
                                 'languages': get_sorted_languages(request),
                                 'outdated_flag':settings.MEDIA_URL + 'media/img/admin/icon_error.gif',
-                                },
-                                context_instance=RequestContext(request))
+                                })
 
 @login_required
 def new_institution(request):
@@ -706,16 +689,14 @@ def new_institution(request):
             institution.creator = request.user
             institution.save()
             json = serializers.serialize('json',[institution])
-            return HttpResponse(json, mimetype='application/json')
+            return HttpResponse(json, content_type='application/json')
         else:
-            return HttpResponse(new_institution.as_table(), mimetype='text/html')
+            return HttpResponse(new_institution.as_table(), content_type='text/html')
 
     else:
         new_institution = NewInstitution()
 
-    return render_to_response('repository/new_institution.html',
-                             {'form':new_institution},
-                               context_instance=RequestContext(request))
+    return render(request, 'repository/new_institution.html', {'form':new_institution})
 
 @login_required
 def contacts(request):
@@ -735,11 +716,9 @@ def contacts(request):
 
     form = ContactsForm()
 
-    return render_to_response('repository/delete_contact.html',
-                             { 'form':form,
+    return render(request, 'repository/delete_contact.html', { 'form':form,
                                'form_title':_('Delete Contact'),
-                               'title':_('Delete Contact'),},
-                               context_instance=RequestContext(request))
+                               'title':_('Delete Contact'),})
 
 
 def step_list(trial_pk):
@@ -759,8 +738,7 @@ def step_1(request, trial_pk):
 
     if not request.user.is_staff and not user_in_group(request.user, 'reviewers'):
         if request.user != ct.submission.creator:
-            return render_to_response('403.html', {'site': Site.objects.get_current(),},
-                            context_instance=RequestContext(request))
+            return render(request, '403.html', {'site': Site.objects.get_current(),})
 
     if request.method == 'POST' and request.can_change_trial:
         form = TrialIdentificationForm(request.POST, instance=ct,
@@ -786,16 +764,14 @@ def step_1(request, trial_pk):
 
     forms = [form]
     formsets = [secondary_forms]
-    return render_to_response('repository/trial_form.html',
-                              {'forms':forms,'formsets':formsets,
+    return render(request, 'repository/trial_form.html', {'forms':forms,'formsets':formsets,
                                'trial_pk':trial_pk,
                                'title':TRIAL_FORMS[0],
                                'steps': step_list(trial_pk),
                                'remarks':Remark.status_open.filter(submission=ct.submission,context=slugify(TRIAL_FORMS[0])),
                                'default_second_language': ct.submission.get_secondary_language(),
                                'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],
-                               },
-                               context_instance=RequestContext(request))
+                               })
 
 
 @login_required
@@ -805,8 +781,7 @@ def step_2(request, trial_pk):
 
     if not request.user.is_staff and not user_in_group(request.user, 'reviewers'):
         if request.user != ct.submission.creator:
-            return render_to_response('403.html', {'site': Site.objects.get_current(),},
-                            context_instance=RequestContext(request))
+            return render(request, '403.html', {'site': Site.objects.get_current(),})
 
     qs_primary_sponsor = Institution.objects.filter(creator=request.user).order_by('name')
 
@@ -840,15 +815,13 @@ def step_2(request, trial_pk):
 
     forms = [form]
     formsets = [secondary_forms,sources_form]
-    return render_to_response('repository/step_2.html',
-                              {'forms':forms,'formsets':formsets,
+    return render(request, 'repository/step_2.html', {'forms':forms,'formsets':formsets,
                                'trial_pk':trial_pk,
                                'title':TRIAL_FORMS[1],
                                'steps': step_list(trial_pk),
                                'remarks':Remark.status_open.filter(submission=ct.submission,context=slugify(TRIAL_FORMS[1])),
                                'default_second_language': ct.submission.get_secondary_language(),
-                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],},
-                               context_instance=RequestContext(request))
+                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],})
 
 
 @login_required
@@ -858,8 +831,7 @@ def step_3(request, trial_pk):
 
     if not request.user.is_staff and not user_in_group(request.user, 'reviewers'):
         if request.user != ct.submission.creator:
-            return render_to_response('403.html', {'site': Site.objects.get_current(),},
-                            context_instance=RequestContext(request))
+            return render(request, '403.html', {'site': Site.objects.get_current(),})
 
     GeneralDescriptorSet = modelformset_factory(Descriptor,
                                                 formset=MultilingualBaseFormSet,
@@ -922,15 +894,13 @@ def step_3(request, trial_pk):
 
     forms = [form]
     formsets = [general_desc_formset, specific_desc_formset]
-    return render_to_response('repository/step_3.html',
-                              {'forms':forms,'formsets':formsets,
+    return render(request, 'repository/step_3.html', {'forms':forms,'formsets':formsets,
                                'trial_pk':trial_pk,
                                'title':TRIAL_FORMS[2],
                                'steps': step_list(trial_pk),
                                'remarks':Remark.status_open.filter(submission=ct.submission,context=slugify(TRIAL_FORMS[2])),
                                'default_second_language': ct.submission.get_secondary_language(),
-                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],},
-                               context_instance=RequestContext(request))
+                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],})
 
 
 @login_required
@@ -940,8 +910,7 @@ def step_4(request, trial_pk):
 
     if not request.user.is_staff and not user_in_group(request.user, 'reviewers'):
         if request.user != ct.submission.creator:
-            return render_to_response('403.html', {'site': Site.objects.get_current(),},
-                            context_instance=RequestContext(request))
+            return render(request, '403.html', {'site': Site.objects.get_current(),})
 
     DescriptorFormSet = modelformset_factory(Descriptor,
                                           formset=MultilingualBaseFormSet,
@@ -981,15 +950,13 @@ def step_4(request, trial_pk):
 
     forms = [form]
     formsets = [specific_desc_formset]
-    return render_to_response('repository/step_4.html',
-                              {'forms':forms,'formsets':formsets,
+    return render(request, 'repository/step_4.html', {'forms':forms,'formsets':formsets,
                                'trial_pk':trial_pk,
                                'title':TRIAL_FORMS[3],
                                'steps': step_list(trial_pk),
                                'remarks':Remark.status_open.filter(submission=ct.submission,context=slugify(TRIAL_FORMS[3])),
                                'default_second_language': ct.submission.get_secondary_language(),
-                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],},
-                               context_instance=RequestContext(request))
+                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],})
 
 
 @login_required
@@ -999,8 +966,7 @@ def step_5(request, trial_pk):
 
     if not request.user.is_staff and not user_in_group(request.user, 'reviewers'):
         if request.user != ct.submission.creator:
-            return render_to_response('403.html', {'site': Site.objects.get_current(),},
-                            context_instance=RequestContext(request))
+            return render(request, '403.html', {'site': Site.objects.get_current(),})
 
     if request.method == 'POST' and request.can_change_trial:
         form = RecruitmentForm(request.POST, instance=ct,
@@ -1018,16 +984,14 @@ def step_5(request, trial_pk):
 
     forms = [form]
 
-    return render_to_response('repository/trial_form.html',
-                              {'forms':forms,
+    return render(request, 'repository/trial_form.html', {'forms':forms,
                                'trial_pk':trial_pk,
                                'title':TRIAL_FORMS[4],
                                'steps': step_list(trial_pk),
                                'remarks':Remark.status_open.filter(submission=ct.submission,context=slugify(TRIAL_FORMS[4])),
                                'default_second_language': ct.submission.get_secondary_language(),
                                'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],
-                               },
-                               context_instance=RequestContext(request))
+                               })
 
 
 @login_required
@@ -1037,8 +1001,7 @@ def step_6(request, trial_pk):
 
     if not request.user.is_staff and not user_in_group(request.user, 'reviewers'):
         if request.user != ct.submission.creator:
-            return render_to_response('403.html', {'site': Site.objects.get_current(),},
-                            context_instance=RequestContext(request))
+            return render(request, '403.html', {'site': Site.objects.get_current(),})
 
     if request.method == 'POST' and request.can_change_trial:
         form = StudyTypeForm(request.POST, instance=ct,
@@ -1053,15 +1016,13 @@ def step_6(request, trial_pk):
                              display_language=request.trials_language)
 
     forms = [form]
-    return render_to_response('repository/trial_form.html',
-                              {'forms':forms,
+    return render(request, 'repository/trial_form.html', {'forms':forms,
                                'trial_pk':trial_pk,
                                'title':TRIAL_FORMS[5],
                                'steps': step_list(trial_pk),
                                'remarks':Remark.status_open.filter(submission=ct.submission,context=slugify(TRIAL_FORMS[5])),
                                'default_second_language': ct.submission.get_secondary_language(),
-                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],},
-                               context_instance=RequestContext(request))
+                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],})
 
 
 @login_required
@@ -1071,8 +1032,7 @@ def step_7(request, trial_pk):
 
     if not request.user.is_staff and not user_in_group(request.user, 'reviewers'):
         if request.user != ct.submission.creator:
-            return render_to_response('403.html', {'site': Site.objects.get_current(),},
-                            context_instance=RequestContext(request))
+            return render(request, '403.html', {'site': Site.objects.get_current(),})
 
     PrimaryOutcomesSet = modelformset_factory( Outcome,
                                 formset=MultilingualBaseFormSet,
@@ -1121,15 +1081,13 @@ def step_7(request, trial_pk):
         secondary_outcomes_formset = SecondaryOutcomesSet(queryset=secondary_qs, prefix='secondary')
 
     formsets = [primary_outcomes_formset,secondary_outcomes_formset]
-    return render_to_response('repository/trial_form.html',
-                              {'formsets':formsets,
+    return render(request, 'repository/trial_form.html', {'formsets':formsets,
                                'trial_pk':trial_pk,
                                'title':TRIAL_FORMS[6],
                                'steps': step_list(trial_pk),
                                'remarks':Remark.status_open.filter(submission=ct.submission,context=slugify(TRIAL_FORMS[6])),
                                'default_second_language': ct.submission.get_secondary_language(),
-                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],},
-                               context_instance=RequestContext(request))
+                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],})
 
 
 @login_required
@@ -1139,8 +1097,7 @@ def step_8(request, trial_pk):
 
     if not request.user.is_staff and not user_in_group(request.user, 'reviewers'):
         if request.user != ct.submission.creator:
-            return render_to_response('403.html', {'site': Site.objects.get_current(),},
-                            context_instance=RequestContext(request))
+            return render(request, '403.html', {'site': Site.objects.get_current(),})
 
     contact_type = {
         'PublicContact': (PublicContact,make_public_contact_form(request.user)),
@@ -1187,15 +1144,13 @@ def step_8(request, trial_pk):
         new_contact_formset = ContactFormSet(queryset=contact_qs,prefix='new_contact')
 
     formsets = inlineformsets + [new_contact_formset]
-    return render_to_response('repository/step_8.html',
-                              {'formsets':formsets,
+    return render(request, 'repository/step_8.html', {'formsets':formsets,
                                'trial_pk':trial_pk,
                                'title':TRIAL_FORMS[7],
                                'steps': step_list(trial_pk),
                                'remarks':Remark.status_open.filter(submission=ct.submission,context=slugify(TRIAL_FORMS[7])),
                                'default_second_language': ct.submission.get_secondary_language(),
-                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],},
-                               context_instance=RequestContext(request))
+                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],})
 
 @login_required
 @check_user_can_edit_trial
@@ -1205,8 +1160,7 @@ def step_9(request, trial_pk):
 
     if not request.user.is_staff and not user_in_group(request.user, 'reviewers'):
         if request.user != ct.submission.creator:
-            return render_to_response('403.html', {'site': Site.objects.get_current(),},
-                            context_instance=RequestContext(request))
+            return render(request, '403.html', {'site': Site.objects.get_current(),})
 
     su = Submission.objects.get(trial=ct)
 
@@ -1245,8 +1199,7 @@ def step_9(request, trial_pk):
 
     formsets = [new_attachment_formset]
 
-    return render_to_response('repository/attachments.html',
-                              {'formsets':formsets,
+    return render(request, 'repository/attachments.html', {'formsets':formsets,
                                'existing_attachments':existing_attachments,
                                'trial_pk':trial_pk,
                                'title':TRIAL_FORMS[8],
@@ -1254,8 +1207,7 @@ def step_9(request, trial_pk):
                                'steps': step_list(trial_pk),
                                'remarks':Remark.status_open.filter(submission=ct.submission,context=slugify(TRIAL_FORMS[8])),
                                'default_second_language': ct.submission.get_secondary_language(),
-                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],},
-                               context_instance=RequestContext(request))
+                               'available_languages': [lang.lower() for lang in ct.submission.get_mandatory_languages()],})
 
 from repository.xml.generate import xml_ictrp, xml_opentrials
 
@@ -1287,7 +1239,7 @@ def trial_ictrp(request, trial_fossil_id, trial_version=None):
     xml = xml_ictrp([fossil])
 
     resp = HttpResponse(xml,
-            mimetype = 'text/xml'
+            content_type='text/xml'
             )
 
     resp['Content-Disposition'] = 'attachment; filename=%s-ictrp.xml' % ct.trial_id
@@ -1300,7 +1252,7 @@ def all_trials_ictrp(request):
     xml = xml_ictrp(trials)
 
     resp = HttpResponse(xml,
-            mimetype = 'text/xml'
+            content_type='text/xml'
             )
 
     resp['Content-Disposition'] = 'attachment; filename=%s-ictrp.xml' % settings.TRIAL_ID_PREFIX
@@ -1336,7 +1288,7 @@ def trial_otxml(request, trial_id, trial_version=None):
     xml = xml_opentrials([ct])
 
     resp = HttpResponse(xml,
-            mimetype = 'text/xml'
+            content_type='text/xml'
             )
 
     resp['Content-Disposition'] = 'attachment; filename=%s-ot.xml' % ct.trial_id
@@ -1371,7 +1323,7 @@ def multi_otxml(request):
     xml = xml_opentrials(ct_list)
 
     resp = HttpResponse(xml,
-            mimetype = 'text/xml'
+            content_type='text/xml'
             )
 
     today = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M')
@@ -1387,7 +1339,7 @@ def custom_otcsv(request):
 
     filename = "CustomCSV_OT_%s" % today
 
-    output = cStringIO.StringIO() ## temp output csv file
+    output = io.StringIO() ## temp output csv file
     writer = csv.writer(output)
 
     writer.writerow(['trial','created','updated','status','creator','title'])
@@ -1404,7 +1356,7 @@ def custom_otcsv(request):
 
         writer.writerow([trial_id,submission['created'],submission['updated'],submission['status'],login_creator,title])
 
-    response = HttpResponse(mimetype='application/zip')
+    response = HttpResponse(content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename=%s.zip' % filename
 
     zipped_file = ZipFile(response, 'w', ZIP_DEFLATED)
@@ -1430,8 +1382,7 @@ def advanced_search(request):
     recruitment_status_list = localized_vocabulary(RecruitmentStatus, request.LANGUAGE_CODE.lower())
     institution_type_list = localized_vocabulary(InstitutionType, request.LANGUAGE_CODE.lower())
 
-    return render_to_response('repository/advanced_search.html',
-                              {'rec_countries':recruitment_country_list,
+    return render(request, 'repository/advanced_search.html', {'rec_countries':recruitment_country_list,
                                'rec_status':recruitment_status_list,
                                'i_type':institution_type_list,
                                'q':q,
@@ -1446,5 +1397,4 @@ def advanced_search(request):
                                                  'maximum_age':maximum_age,
                                                  'minimum_age_unit':minimum_age_unit,
                                                  'maximum_age_unit':maximum_age_unit,                                               },
-                              },
-                              context_instance=RequestContext(request))
+                              })
