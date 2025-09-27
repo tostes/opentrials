@@ -19,34 +19,63 @@ http://github.com/bireme/opentrials
 Dependencies
 ------------
 
+The project targets Python 3.10+ and Django 4.2.  The ``requirements.txt``
+file lists the Python packages that need to be installed in order to run the
+project and to bootstrap the Django site successfully.
+
 OS dependencies (Ubuntu)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-sudo apt-get install build-essential python2.6-dev libxml2-dev libxslt1-dev
-sudo apt-get install apache2 libapache2-mod-wsgi
-sudo apt-get install mysql-server-5.1 libmysqlclient-dev
+The following packages cover the native dependencies required by the Python
+libraries listed above:
 
-Python libraries
-~~~~~~~~~~~~~~~~
+sudo apt-get install build-essential python3-dev libxml2-dev libxslt1-dev
+sudo apt-get install apache2 libapache2-mod-wsgi-py3
+sudo apt-get install default-mysql-server default-libmysqlclient-dev
 
-- Python 2.4 or higher. Preference for 2.6
-- Django 1.2 or higher
-- Some of database wrappers, like psycopg2 or MySQLDb
-- Python Imaging Library ( http://www.pythonware.com/products/pil/ )
-- south
-- BeautifulSoup
-- mysql-python
-- lxml
-- Markdown
-- django-registration ( http://bitbucket.org/bireme/django-registration )
-- django_compressor
-- django-nose
-- django-rosetta
-- django-reversion
-- django-plus
-- django-fossil
 
-We suggest you read a more detailed page at:
+Third-party Django apps
+~~~~~~~~~~~~~~~~~~~~~~~
+
+``INSTALLED_APPS`` references a couple of reusable Django applications that
+are not part of this repository.  They are mapped below to the packages that
+need to be present in your virtual environment:
+
+=====================  ======================
+``INSTALLED_APPS``     PyPI package
+=====================  ======================
+``compressor``         ``django-compressor``
+``haystack``           ``django-haystack``
+``rosetta``            ``django-rosetta``
+=====================  ======================
+
+The ``registration`` entry is shipped as part of this repository (a local
+fork of ``django-registration``) and therefore does not require an external
+dependency.
+
+The ``requirements.txt`` file pins versions of these packages that are known
+to work with Django 4.2.
+
+
+Installation
+------------
+
+We recommend working inside a virtual environment:
+
+    python -m venv .venv
+    source .venv/bin/activate
+    pip install --upgrade pip
+
+Install the Python dependencies:
+
+    pip install -r requirements.txt
+
+If some package is already installed globally, make sure it matches the
+version constraints in ``requirements.txt``; otherwise, reinstall it inside
+the virtual environment.
+
+Legacy documentation describing the original Subversion-based deployment is
+available at:
 
     http://reddes.bvsalud.org/projects/clinical-trials/wiki/HowToInstall
 
