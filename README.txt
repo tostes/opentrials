@@ -51,6 +51,23 @@ We suggest you read a more detailed page at:
     http://reddes.bvsalud.org/projects/clinical-trials/wiki/HowToInstall
 
 
+Local configuration
+-------------------
+
+The default settings now ship with a safe SQLite database that lives inside
+the project tree.  This allows the test suite or ad-hoc development servers to
+run without any additional configuration.  To override these defaults create a
+``settings_local.py`` module (or reuse the legacy ``settings_local.include``)
+alongside ``opentrials/settings.py``.  The
+``opentrials/settings_local.include-SAMPLE`` file documents the options that a
+deployment typically needs to provide.
+
+During startup the project will also ensure that the
+``static/attachments`` directory exists.  Confirm that the account running the
+application can write to that directory so user uploads continue to work in
+production environments.
+
+
 virtualenv/setuptools
 ---------------------
 

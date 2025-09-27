@@ -18,8 +18,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import os
 from pathlib import Path
+import warnings
 
 from django_localflavor.br import br_states
 
@@ -33,6 +35,16 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_OPTIONS = {"init_command": "SET storage_engine=INNODB"}
+
+# Default to a local SQLite database so the project can start without
+# environment specific overrides. Individual deployments should provide their
+# own configuration via ``settings_local.py`` or ``settings_local.include``.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': str(Path(PROJECT_PATH) / 'opentrials.sqlite3'),
+    }
+}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -230,22 +242,56 @@ COMPRESS_OUTPUT_DIR = 'compressor-cache'
 ### END Clinical Trials Repository customization settings
 #################################################################
 
-# Local deployment settings: there *must* be an unversioned
-# 'settings_local.include' file in the current directory.
-# See sample file at settings_local-SAMPLE.include.
+# Local deployment settings: overrides can live in ``settings_local.py`` or the
+# legacy ``settings_local.include`` file located next to this module.  See the
+# sample file at ``settings_local.include-SAMPLE`` for the recommended values.
+logger = logging.getLogger(__name__)
+
 SETTINGS_LOCAL_INCLUDE = Path(PROJECT_PATH) / 'settings_local.include'
-if SETTINGS_LOCAL_INCLUDE.exists():
-    exec(SETTINGS_LOCAL_INCLUDE.read_text(encoding='utf-8'), globals())
-else:
-    raise IOError('Local settings include file "%s" not found' % SETTINGS_LOCAL_INCLUDE)
+
+
+def _load_legacy_local_settings():
+    """Load ``settings_local.include`` for backwards compatibility."""
+
+    if SETTINGS_LOCAL_INCLUDE.exists():
+        warnings.warn(
+            'settings_local.include is deprecated; please migrate to '
+            'settings_local.py.',
+            DeprecationWarning,
+        )
+        exec(SETTINGS_LOCAL_INCLUDE.read_text(encoding='utf-8'), globals())
+        return True
+    return False
+
+
+try:
+    from .settings_local import *  # noqa
+except ImportError as exc:
+    if exc.name != 'opentrials.settings_local':
+        raise
+    if not _load_legacy_local_settings():
+        warnings.warn(
+            'No local settings overrides were found. The default development '
+            'configuration will be used. See settings_local.include-SAMPLE '
+            'for guidance.',
+            RuntimeWarning,
+        )
 
 #check for write permission in static/attachments, for user's uploads
 ATTACHMENTS_PATH = os.path.join(MEDIA_ROOT, ATTACHMENTS_DIR)
-if os.path.exists(ATTACHMENTS_PATH):
-    if not os.access(ATTACHMENTS_PATH, os.W_OK):
-        raise IOError('Attachments folder "%s" must be writeable' %
-                                (ATTACHMENTS_PATH))
-else:
-    raise IOError('Attachments folder "%s" not found' % (ATTACHMENTS_PATH))
+try:
+    os.makedirs(ATTACHMENTS_PATH, exist_ok=True)
+except OSError as exc:  # pragma: no cover - log-only branch
+    logger.warning(
+        'Unable to ensure attachments folder "%s": %s',
+        ATTACHMENTS_PATH,
+        exc,
+    )
+
+if not os.access(ATTACHMENTS_PATH, os.W_OK):
+    logger.warning(
+        'Attachments folder "%s" is not writable; uploads may fail.',
+        ATTACHMENTS_PATH,
+    )
 
 OPENTRIALS_VERSION = 'v1.2' # this should be the deployed tag number
