@@ -1,3 +1,6 @@
+# Rename this file to ``settings_local.py`` (recommended) or copy its contents
+# to ``settings_local.include`` if you prefer the legacy include-based loader.
+
 DEBUG = True
 
 SITE_ID = 2 # change if necessary to match a record in django_site
@@ -43,7 +46,10 @@ GOOGLE_ANALYTICS_ID = ''
 #CUSTOM_TEMPLATE_DIR = os.path.join(PROJECT_PATH, 'custom/ecgovbr/templates')
 #TEMPLATES[0]['DIRS'] = [CUSTOM_TEMPLATE_DIR] + TEMPLATES[0]['DIRS']
 
-# Backup directory
+# Backup directory.  When left untouched the default settings will create the
+# ``static/attachments`` tree automatically and fall back to a SQLite database
+# suitable for development and automated testing environments.  Override these
+# values here as needed by your deployment.
 BACKUP_DIR = os.path.join(MEDIA_ROOT, 'backup')
 
 if DEBUG:
