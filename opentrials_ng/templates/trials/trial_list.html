@@ -1,0 +1,42 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Clinical trials" %} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="module">
+  <h1>{% trans "Clinical trials" %}</h1>
+  {% if trials %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>{% trans "Identifier" %}</th>
+        <th>{% trans "Title" %}</th>
+        <th>{% trans "Status" %}</th>
+        <th>{% trans "Primary sponsor" %}</th>
+        <th>{% trans "Countries" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trial in trials %}
+      <tr>
+        <td>{{ trial.display_identifier }}</td>
+        <td>{{ trial.main_title }}</td>
+        <td>{{ trial.get_record_status_display }}</td>
+        <td>{{ trial.primary_sponsor }}</td>
+        <td>
+          {% for country in trial.recruitment_countries.all %}
+            {{ country.label }}{% if not forloop.last %}, {% endif %}
+          {% empty %}
+            {% trans "Not provided" %}
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>{% trans "No trials have been registered yet." %}</p>
+  {% endif %}
+</div>
+{% endblock %}
