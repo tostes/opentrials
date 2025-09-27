@@ -9,5 +9,6 @@ django-nose>=1.4.7,<1.5
 django-rosetta>=0.9.9,<1.1
 django-reversion>=5.0.8,<6
 django-plus>=0.4,<1
+django-haystack>=3.2,<3.3
 pysolr>=3.9,<4
 django-localflavor>=4.0,<5
