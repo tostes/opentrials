@@ -19,7 +19,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from localflavor.br import br_states
+from pathlib import Path
+
+from django_localflavor.br import br_states
 
 DEBUG = False
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -144,8 +146,6 @@ INSTALLED_APPS = (
     'polyglot',
     'registration',  # django-registration package
     'flatpages_polyglot',
-    'south',
-    'fossil',
     'rosetta',
     'haystack',
     #'debug_toolbar',
@@ -212,9 +212,6 @@ LOCAL_STATE_CHOICES = br_states.STATE_CHOICES
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = ['--with-coverage', '--with-doctest', '--doctest-tests', '--doctest-extension=txt'] # --doctest-fixtures, --with-profile
 #NOSE_PLUGINS = []
-SKIP_SOUTH_TESTS = True
-SOUTH_TESTS_MIGRATE = False
-
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 FORMAT_MODULE_PATH = 'formats'
@@ -236,12 +233,11 @@ COMPRESS_OUTPUT_DIR = 'compressor-cache'
 # Local deployment settings: there *must* be an unversioned
 # 'settings_local.include' file in the current directory.
 # See sample file at settings_local-SAMPLE.include.
-# NOTE: in the next line we do not use a simple...
-#     try: from settings_local import * except ImportError: pass
-#   ...because (1) we want to be able to add to settings in this file, and
-#   not only overwrite them, and (2) we do not want the app to launch if the
-#   'settings_local.include' file is not provided
-execfile(os.path.join(PROJECT_PATH,'settings_local.include'))
+SETTINGS_LOCAL_INCLUDE = Path(PROJECT_PATH) / 'settings_local.include'
+if SETTINGS_LOCAL_INCLUDE.exists():
+    exec(SETTINGS_LOCAL_INCLUDE.read_text(encoding='utf-8'), globals())
+else:
+    raise IOError('Local settings include file "%s" not found' % SETTINGS_LOCAL_INCLUDE)
 
 #check for write permission in static/attachments, for user's uploads
 ATTACHMENTS_PATH = os.path.join(MEDIA_ROOT, ATTACHMENTS_DIR)
