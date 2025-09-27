@@ -10,3 +10,4 @@ django-rosetta>=0.9.9,<1.1
 django-reversion>=5.0.8,<6
 django-plus>=0.4,<1
 pysolr>=3.9,<4
+django-localflavor>=4.0,<5
