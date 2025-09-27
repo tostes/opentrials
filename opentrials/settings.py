@@ -23,7 +23,7 @@ import os
 from pathlib import Path
 import warnings
 
-from django_localflavor.br import br_states
+from localflavor.br import br_states
 
 DEBUG = False
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
